@@ -1,0 +1,553 @@
+/* Expansion UI: maps, coliseum and advanced shop filters */
+.coliseumBtn {
+    border-color: rgba(255, 96, 96, 0.65);
+    background: linear-gradient(180deg, rgba(126, 20, 48, 0.95), rgba(48, 10, 24, 0.95));
+    box-shadow: 0 0 24px rgba(255, 64, 96, 0.24);
+}
+
+.mapMenuContent {
+    width: min(1040px, 94vw);
+    max-width: 1040px;
+}
+
+#mapGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin: 22px 0;
+    max-height: 58vh;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.map-card {
+    min-height: 210px;
+    padding: 18px;
+    border: 2px solid color-mix(in srgb, var(--map-color) 55%, rgba(255,255,255,0.15));
+    border-radius: 16px;
+    background:
+        radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--map-color) 24%, transparent), transparent 34%),
+        linear-gradient(180deg, rgba(8,24,62,0.94), rgba(3,10,28,0.96));
+    color: #eaf9ff;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.map-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--map-accent);
+    box-shadow: 0 16px 30px rgba(0,0,0,.3), 0 0 28px color-mix(in srgb, var(--map-color) 45%, transparent);
+}
+
+.map-planet {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 35% 30%, #fff, var(--map-accent) 16%, var(--map-color) 48%, rgba(0,0,0,.35) 100%);
+    box-shadow: 0 0 26px color-mix(in srgb, var(--map-color) 60%, transparent);
+}
+
+.map-card strong {
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+}
+
+.map-card small {
+    color: #a9c5d8;
+    line-height: 1.35;
+}
+
+.map-card em {
+    color: var(--map-accent);
+    font-style: normal;
+    font-weight: 800;
+}
+
+.skin-shop-controls {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    padding: 14px 18px 0;
+}
+
+.skin-shop-controls input,
+.skin-shop-controls select {
+    min-height: 40px;
+    border: 1px solid rgba(106,226,255,.34);
+    border-radius: 10px;
+    background: rgba(3,10,28,.88);
+    color: #eaf9ff;
+    padding: 0 12px;
+    font: inherit;
+}
+
+.skin-rarity {
+    align-self: center;
+    padding: 4px 9px;
+    border-radius: 999px;
+    color: #04101f;
+    background: linear-gradient(90deg, var(--skin-accent), #ffffff);
+    font-size: .72rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.quick-btn,
+.close-btn,
+.action-btn {
+    min-width: 44px;
+    min-height: 36px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.action-btn {
+    font-size: .82rem;
+    border: 1px solid rgba(106,226,255,.28);
+}
+
+body[data-map="meat"] #gameCanvas {
+    background: radial-gradient(circle at 50% 45%, #7f1d1d, #2a0609 62%, #090203);
+}
+
+body[data-map="arena"] #gameCanvas {
+    background: radial-gradient(circle at 50% 55%, #9a5b18, #3b1f0b 60%, #110804);
+}
+
+body[data-map="lava"] #gameCanvas {
+    background: radial-gradient(circle at 50% 70%, #ff6b00, #5b1206 48%, #120404);
+}
+
+body[data-map="iceworld"] #gameCanvas {
+    background: radial-gradient(circle at 50% 40%, #dbeafe, #60a5fa 40%, #0b2447 100%);
+}
+
+body[data-map="darkworld"] #gameCanvas {
+    background: radial-gradient(circle at 50% 45%, #1f1147, #080812 55%, #020205);
+}
+
+body[data-mode="coliseum"] #gameCanvas {
+    outline: 4px solid rgba(255, 80, 120, .26);
+    outline-offset: -4px;
+}
+
+.weapon-hint {
+    color: #ffd166;
+    font-size: .72rem;
+    letter-spacing: 1px;
+}
+
+.rarity-cosmica,
+.rarity-mitica,
+.rarity-nuclear,
+.rarity-jurasica {
+    border-width: 3px;
+}
+
+body[data-mode="coliseum"] #waveText,
+body[data-mode="coliseum"] #bossName {
+    color: #ff6b8b;
+    text-shadow: 0 0 18px rgba(255, 80, 120, .55);
+}
+
+@media (max-width: 760px) {
+    .skin-shop-controls {
+        grid-template-columns: 1fr;
+    }
+
+    #mapGrid {
+        grid-template-columns: 1fr;
+        max-height: 62vh;
+    }
+}
+
+/* Advanced shop, cosmetics and modern battle pass */
+#shopPanel,
+#battlePassPanel {
+    width: min(1120px, 94vw);
+    max-width: 1120px;
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 18% 0%, rgba(106,226,255,.16), transparent 28%),
+        radial-gradient(circle at 92% 12%, rgba(255,209,102,.12), transparent 24%),
+        rgba(5,12,28,.96);
+}
+
+.shopTabs {
+    flex-wrap: wrap;
+}
+
+.mega-shop-controls {
+    grid-template-columns: minmax(220px, 1fr) 220px;
+}
+
+#shopContent.mega-shop-grid {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    align-items: stretch;
+}
+
+.mega-shop-section {
+    grid-column: 1 / -1;
+    padding: 12px 14px 6px;
+    color: #ffd166;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(255,209,102,.24);
+}
+
+.mega-shop-card {
+    position: relative;
+    min-height: 260px;
+    border-color: color-mix(in srgb, var(--item-color, #6ae2ff) 45%, rgba(255,255,255,.14));
+    background:
+        radial-gradient(circle at 50% 16%, color-mix(in srgb, var(--item-color, #6ae2ff) 18%, transparent), transparent 34%),
+        linear-gradient(180deg, rgba(9,26,54,.9), rgba(3,9,24,.94));
+}
+
+.mega-shop-card.equipped {
+    outline: 2px solid var(--item-accent, #fff);
+    box-shadow: 0 0 28px color-mix(in srgb, var(--item-color, #6ae2ff) 45%, transparent);
+}
+
+.mega-shop-card.locked {
+    filter: saturate(.78);
+}
+
+.mega-preview {
+    width: 74px;
+    height: 74px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    border: 2px solid color-mix(in srgb, var(--item-color, #6ae2ff) 55%, #fff);
+    background:
+        radial-gradient(circle at 36% 28%, #fff, var(--item-accent, #fff) 13%, var(--item-color, #6ae2ff) 45%, rgba(0,0,0,.5) 100%);
+    box-shadow: 0 0 24px color-mix(in srgb, var(--item-color, #6ae2ff) 55%, transparent);
+}
+
+.frame-preview {
+    border-radius: 50%;
+    background: transparent;
+    box-shadow:
+        inset 0 0 0 9px color-mix(in srgb, var(--item-color, #ffd166) 70%, #fff),
+        0 0 28px var(--item-color, #ffd166);
+}
+
+.effect-preview {
+    border-radius: 50%;
+    animation: cosmeticSpin 2.4s linear infinite;
+}
+
+.projectile-preview {
+    width: 88px;
+    height: 42px;
+    border-radius: 99px;
+}
+
+.package-preview {
+    border-radius: 12px;
+    transform: rotate(45deg) scale(.82);
+}
+
+.shop-state {
+    margin-top: auto;
+    color: #ffd166;
+    font-size: .82rem;
+    font-weight: 900;
+}
+
+.bp-modern-track {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 14px !important;
+    padding: 18px !important;
+}
+
+.bp-modern-card {
+    min-height: 178px;
+    padding: 14px;
+    border: 1px solid rgba(106,226,255,.22);
+    border-radius: 14px;
+    background:
+        radial-gradient(circle at 20% 12%, rgba(255,255,255,.08), transparent 24%),
+        linear-gradient(180deg, rgba(10,28,58,.9), rgba(4,12,30,.94));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bp-modern-card.available {
+    border-color: rgba(0,255,136,.42);
+}
+
+.bp-modern-card.claimed {
+    opacity: .72;
+    border-color: rgba(106,226,255,.22);
+}
+
+.bp-modern-card.locked {
+    filter: grayscale(.38);
+}
+
+.bp-reward-stack {
+    display: grid;
+    gap: 6px;
+    flex: 1;
+}
+
+.bp-reward-stack span {
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,.06);
+    color: #d9f7ff;
+    font-size: .78rem;
+}
+
+.bp-modern-card.rarity-cosmica,
+.mega-shop-card.rarity-cosmica {
+    border-color: #6ae2ff;
+    box-shadow: 0 0 24px rgba(106,226,255,.2);
+}
+
+.bp-modern-card.rarity-mitica,
+.mega-shop-card.rarity-mitica {
+    border-color: #c56bff;
+    box-shadow: 0 0 24px rgba(197,107,255,.18);
+}
+
+.bp-modern-card.rarity-nuclear,
+.mega-shop-card.rarity-nuclear {
+    border-color: #9cff3a;
+    box-shadow: 0 0 24px rgba(156,255,58,.18);
+}
+
+body[data-mode="coliseum"] #hudTop::after {
+    content: "COLISEO BOSS RUSH";
+    position: absolute;
+    left: 50%;
+    top: 54px;
+    transform: translateX(-50%);
+    color: #ffd166;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 0 0 18px rgba(255,209,102,.55);
+    pointer-events: none;
+}
+
+@keyframes cosmeticSpin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 760px) {
+    .mega-shop-controls {
+        grid-template-columns: 1fr;
+    }
+
+    #shopContent.mega-shop-grid,
+    .bp-modern-track {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tiered Coliseum selector */
+.coliseum-select-content {
+    width: min(1180px, 94vw);
+    max-width: 1180px;
+}
+
+.coliseum-tier-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin: 28px 0 22px;
+}
+
+.coliseum-tier-card {
+    position: relative;
+    min-height: 360px;
+    padding: 24px;
+    border: 2px solid rgba(106,226,255,.34);
+    border-radius: 18px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: #eaf9ff;
+    background:
+        radial-gradient(circle at 50% 18%, rgba(255,255,255,.18), transparent 12%),
+        radial-gradient(circle at 50% 78%, rgba(106,226,255,.22), transparent 36%),
+        linear-gradient(180deg, rgba(6,18,42,.96), rgba(2,7,20,.98));
+    box-shadow: 0 20px 42px rgba(0,0,0,.38);
+    animation: coliseumCardIn .55s ease both;
+}
+
+.coliseum-tier-card:nth-child(2) {
+    animation-delay: .08s;
+}
+
+.coliseum-tier-card:nth-child(3) {
+    animation-delay: .16s;
+}
+
+.coliseum-tier-card::before,
+.coliseum-tier-card::after {
+    content: "";
+    position: absolute;
+    inset: auto 8% 18% 8%;
+    height: 34%;
+    border: 2px solid currentColor;
+    border-top: 0;
+    border-radius: 0 0 50% 50%;
+    opacity: .18;
+    pointer-events: none;
+}
+
+.coliseum-tier-card::after {
+    inset: 16% 10% auto 10%;
+    height: 24%;
+    border: 1px solid currentColor;
+    border-bottom: 0;
+    border-radius: 50% 50% 0 0;
+}
+
+.coliseum-tier-card:hover {
+    transform: translateY(-6px) scale(1.02);
+}
+
+.coliseum-tier-card.tier1 {
+    color: #7df9ff;
+    border-color: rgba(125,249,255,.55);
+    background:
+        radial-gradient(circle at 50% 22%, rgba(125,249,255,.2), transparent 14%),
+        radial-gradient(circle at 50% 78%, rgba(15,23,42,.92), transparent 42%),
+        linear-gradient(180deg, #071525, #020617);
+}
+
+.coliseum-tier-card.tier2 {
+    color: #ff4d6d;
+    border-color: rgba(255,77,109,.58);
+    background:
+        radial-gradient(circle at 18% 28%, rgba(197,107,255,.22), transparent 17%),
+        radial-gradient(circle at 82% 24%, rgba(255,77,109,.2), transparent 18%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 2px, transparent 2px 22px),
+        linear-gradient(180deg, #261033, #120616);
+}
+
+.coliseum-tier-card.tier3 {
+    color: #ffd166;
+    border-color: rgba(255,209,102,.72);
+    background:
+        radial-gradient(circle at 18% 18%, rgba(106,226,255,.16), transparent 14%),
+        radial-gradient(circle at 82% 16%, rgba(197,107,255,.2), transparent 18%),
+        radial-gradient(circle at 50% 78%, rgba(255,209,102,.28), transparent 42%),
+        linear-gradient(180deg, #2b174a, #170a1f 58%, #08030b);
+}
+
+.tier-skulls {
+    min-height: 68px;
+    display: grid;
+    place-items: center;
+    font-size: 3.3rem;
+    line-height: 1;
+    color: currentColor;
+    text-shadow: 0 0 24px currentColor;
+}
+
+.coliseum-tier-card h3 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.55rem;
+    letter-spacing: 2px;
+}
+
+.coliseum-tier-card p,
+.coliseum-tier-card small,
+.coliseum-tier-card span,
+.coliseum-tier-card em {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    text-align: center;
+}
+
+.coliseum-tier-card p {
+    color: #d9f7ff;
+    font-weight: 800;
+}
+
+.coliseum-tier-card small {
+    color: #a9c5d8;
+    line-height: 1.35;
+}
+
+.coliseum-tier-card span,
+.coliseum-tier-card em {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.08);
+    font-style: normal;
+    font-weight: 900;
+}
+
+.coliseum-tier-card .menuBtn {
+    margin-top: auto;
+    width: min(220px, 100%);
+}
+
+body[data-mode="coliseum"][data-coliseum-tier="1"] #gameCanvas {
+    background:
+        radial-gradient(circle at 50% 55%, rgba(125,249,255,.12), transparent 26%),
+        radial-gradient(circle at 50% 120%, #0f172a, #020617 58%);
+}
+
+body[data-mode="coliseum"][data-coliseum-tier="2"] #gameCanvas {
+    background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 2px, transparent 2px 32px),
+        radial-gradient(circle at 28% 18%, rgba(197,107,255,.2), transparent 22%),
+        radial-gradient(circle at 72% 18%, rgba(255,77,109,.18), transparent 20%),
+        radial-gradient(circle at 50% 105%, #4c1026, #100512 58%);
+}
+
+body[data-mode="coliseum"][data-coliseum-tier="3"] #gameCanvas {
+    background:
+        radial-gradient(circle at 16% 18%, rgba(106,226,255,.18), transparent 10%),
+        radial-gradient(circle at 86% 18%, rgba(255,209,102,.2), transparent 13%),
+        radial-gradient(circle at 50% 38%, rgba(197,107,255,.18), transparent 26%),
+        radial-gradient(circle at 50% 115%, #6b3a14, #18071f 54%, #040208);
+}
+
+body[data-mode="coliseum"][data-coliseum-tier="1"] #hudTop::after {
+    content: "COLISEO I | DUELO INDIVIDUAL";
+}
+
+body[data-mode="coliseum"][data-coliseum-tier="2"] #hudTop::after {
+    content: "COLISEO II | COMBATE DOBLE";
+    color: #ff4d6d;
+}
+
+body[data-mode="coliseum"][data-coliseum-tier="3"] #hudTop::after {
+    content: "COLISEO III | GUERRA DE CAMPEONES";
+    color: #ffd166;
+}
+
+@keyframes coliseumCardIn {
+    from { opacity: 0; transform: translateY(18px) scale(.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 960px) {
+    .coliseum-tier-grid {
+        grid-template-columns: 1fr;
+        max-height: 62vh;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+}

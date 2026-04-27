@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galactic Survivor - Shooter Espacial</title>
+    <link rel="stylesheet" href="/css/juego.css">
+    <link rel="icon" href="data:,">
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+            <div id="hudTop">
+                <div id="playerStats">
+                    <div id="healthBarContainer">
+                        <div id="healthBar"></div>
+                        <span id="healthText">100/100</span>
+                    </div>
+                    <div id="shieldBarContainer">
+                        <div id="shieldBar"></div>
+                        <span id="shieldText">0</span>
+                    </div>
+                </div>
+                <div id="waveInfo">
+                    <span id="waveText">Oleada 1</span>
+                    <span id="enemyCount">Enemigos: 0</span>
+                </div>
+                <div id="scoreInfo">
+                    <span id="scoreText">Puntuación: 0</span>
+                    <span id="comboText">Combo: x1</span>
+                    <span id="levelText">Nivel: 1</span>
+                </div>
+            </div>
+
+            <div id="hudBottom">
+                <div id="weaponInfo">
+                    <span id="weaponName">Disparo Normal</span>
+                    <div id="ammoBarContainer">
+                        <div id="ammoBar"></div>
+                    </div>
+                </div>
+                <div id="cooldowns">
+                    <div class="cooldown" id="dashCooldown">
+                        <div class="cooldownBar" id="dashBar"></div>
+                        <span>Dash (Shift)</span>
+                    </div>
+                    <div class="cooldown" id="skillCooldown">
+                        <div class="cooldownBar" id="skillBar"></div>
+                        <span>Habilidad (E)</span>
+                    </div>
+                </div>
+                <div id="powerups">
+                    <div id="activePowerups"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú Principal -->
+        <div id="mainMenu" class="screen">
+            <div class="menuBg"></div>
+            <div class="menuContent">
+                <h1 class="gameTitle">GALACTIC SURVIVOR</h1>
+                <p class="gameSubtitle">Shooter espacial por oleadas en una galaxia caotica</p>
+                <div class="menuButtons">
+                    <button id="btnStart" class="menuBtn primary">JUGAR</button>
+                    <button id="btnDifficulty" class="menuBtn">Dificultad: Normal</button>
+                    <button id="btnControls" class="menuBtn">Controles</button>
+                </div>
+                <div id="highScore">Récord: <span>0</span></div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Controles -->
+        <div id="controlsScreen" class="screen hidden">
+            <div class="menuBg"></div>
+            <div class="menuContent">
+                <h2>CONTROLES</h2>
+                <div class="controlsList">
+                    <div class="controlItem"><span class="key">W A S D</span><span>Moverse</span></div>
+                    <div class="controlItem"><span class="key">Mouse</span><span>Apuntar</span></div>
+                    <div class="controlItem"><span class="key">Click Izq</span><span>Disparar</span></div>
+                    <div class="controlItem"><span class="key">Shift</span><span>Dash</span></div>
+                    <div class="controlItem"><span class="key">E</span><span>Nave aliada gigante</span></div>
+                    <div class="controlItem"><span class="key">C</span><span>Explosión de choque</span></div>
+                    <div class="controlItem"><span class="key">R</span><span>Recargar</span></div>
+                    <div class="controlItem"><span class="key">1-7</span><span>Cambiar Arma</span></div>
+                    <div class="controlItem"><span class="key">8</span><span>Escopeta</span></div>
+                    <div class="controlItem"><span class="key">9</span><span>Railgun</span></div>
+                    <div class="controlItem"><span class="key">0</span><span>Cañón Plasma</span></div>
+                    <div class="controlItem"><span class="key">P / Esc</span><span>Pausar</span></div>
+                </div>
+                <button id="btnBackControls" class="menuBtn">Volver</button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Pausa -->
+        <div id="pauseScreen" class="screen hidden">
+            <div class="menuBg"></div>
+            <div class="menuContent">
+                <h2>PAUSA</h2>
+                <div class="menuButtons">
+                    <button id="btnResume" class="menuBtn primary">Reanudar</button>
+                    <button id="btnRestartPause" class="menuBtn">Reiniciar</button>
+                    <button id="btnMenuPause" class="menuBtn">Menú Principal</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Game Over -->
+        <div id="gameOverScreen" class="screen hidden">
+            <div class="menuBg"></div>
+            <div class="menuContent">
+                <h2 class="defeat">DERROTA</h2>
+                <div class="statsSummary">
+                    <p>Oleada alcanzada: <span id="finalWave">1</span></p>
+                    <p>Puntuación: <span id="finalScore">0</span></p>
+                    <p>Enemigos eliminados: <span id="finalKills">0</span></p>
+                    <p>Combo máximo: <span id="finalCombo">x1</span></p>
+                    <p>Nivel alcanzado: <span id="finalLevel">1</span></p>
+                    <p>XP total: <span id="finalXP">0</span></p>
+                </div>
+                <div class="menuButtons">
+                    <button id="btnRestart" class="menuBtn primary">Reintentar</button>
+                    <button id="btnMenu" class="menuBtn">Menú Principal</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Victoria (Boss derrotado) -->
+        <div id="victoryScreen" class="screen hidden">
+            <div class="menuBg"></div>
+            <div class="menuContent">
+                <h2 class="victory">¡VICTORIA!</h2>
+                <p class="victorySub">¡Has derrotado a todos los jefes!</p>
+                <div class="statsSummary">
+                    <p>Puntuación final: <span id="victoryScore">0</span></p>
+                    <p>Enemigos eliminados: <span id="victoryKills">0</span></p>
+                    <p>Nivel máximo: <span id="victoryLevel">1</span></p>
+                    <p>XP total: <span id="victoryXP">0</span></p>
+                </div>
+                <div class="menuButtons">
+                    <button id="btnRestartVictory" class="menuBtn primary">Jugar de Nuevo</button>
+                    <button id="btnMenuVictory" class="menuBtn">Menú Principal</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Tienda entre oleadas -->
+        <div id="shopScreen" class="screen hidden">
+            <div class="menuBg"></div>
+            <div class="menuContent">
+                <h2>MEJORAS</h2>
+                <p class="shopSubtitle">Elige una mejora para continuar</p>
+                <div id="shopOptions" class="shopGrid"></div>
+                <button id="btnSkipShop" class="menuBtn">Saltar</button>
+            </div>
+        </div>
+
+        <!-- Notificaciones -->
+        <div id="notifications"></div>
+        <div id="eventOverlay"></div>
+
+        <!-- Barra de vida del jefe -->
+        <div id="bossBar" class="hidden">
+            <div id="bossName">JEFE</div>
+            <div id="bossHealthContainer">
+                <div id="bossHealthBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/juego.js"></script>
+</body>
+</html>
