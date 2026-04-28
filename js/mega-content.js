@@ -32,7 +32,13 @@
         { id: "skin_arena", name: "Skin Arena", rarity: "Rara", category: "Tacticas", price: 540, color: "#c08457", accent: "#fde68a", shot: "sand_spike", special: "sand_prison", cooldown: 640, desc: "Disparo: espinas de arena. Especial: prision de arena." },
         { id: "skin_bestia", name: "Skin Bestia", rarity: "Epica", category: "Salvajes", price: 690, color: "#7f1d1d", accent: "#f97316", shot: "beast_claw", special: "beast_rage", cooldown: 620, desc: "Disparo: garras rojas. Especial: furia que drena vida." },
         { id: "skin_minero_espacial", name: "Skin Minero Espacial", rarity: "Rara", category: "Cosmicas", price: 600, color: "#475569", accent: "#fbbf24", shot: "drill_shot", special: "mine_field", cooldown: 680, desc: "Disparo: taladro perforante. Especial: campo de minas." },
-        { id: "skin_pirata_cosmico", name: "Skin Pirata Cosmico", rarity: "Legendaria", category: "Cosmicas", price: 880, color: "#111827", accent: "#facc15", shot: "pirate_cannon", special: "cosmic_broadside", cooldown: 760, desc: "Disparo: canon cosmico. Especial: andanada lateral." }
+        { id: "skin_pirata_cosmico", name: "Skin Pirata Cosmico", rarity: "Legendaria", category: "Cosmicas", price: 880, color: "#111827", accent: "#facc15", shot: "pirate_cannon", special: "cosmic_broadside", cooldown: 760, desc: "Disparo: canon cosmico. Especial: andanada lateral." },
+        { id: "skin_arcangel_serafin", name: "Skin Arcangel Serafin", rarity: "Cosmica", category: "Sagradas", price: 1240, color: "#fff8cc", accent: "#ffd166", shot: "halo_burst", special: "guardian_seraph", cooldown: 840, desc: "Disparo: halos sagrados en abanico. Especial: serafines guardianes, cura y juicio divino." },
+        { id: "skin_kraken_abisal", name: "Skin Kraken Abisal", rarity: "Mitica", category: "Abismales", price: 1180, color: "#1d0b3f", accent: "#7df9ff", shot: "abyss_ink", special: "kraken_call", cooldown: 820, desc: "Disparo: tinta abisal y orbes de vacio. Especial: invoca tentaculos y pozo abisal." },
+        { id: "skin_comisario_omega", name: "Skin Comisario Omega", rarity: "Legendaria", category: "Policial", price: 980, color: "#0a2a66", accent: "#38bdf8", shot: "police_barrage", special: "lockdown_raid", cooldown: 760, desc: "Disparo: rafaga policial azul. Especial: redada con drones, torretas y jaulas." },
+        { id: "skin_oraculo_ocular", name: "Skin Oraculo Ocular", rarity: "Mitica", category: "Celestiales", price: 1120, color: "#f8fafc", accent: "#7df9ff", shot: "eye_prism", special: "orbital_judgement", cooldown: 800, desc: "Disparo: prismas oculares. Especial: lluvia de ojos y castigo orbital." },
+        { id: "skin_rey_infernal", name: "Skin Rey Infernal", rarity: "Cosmica", category: "Infernal", price: 1260, color: "#5b0f0f", accent: "#ff6b35", shot: "hell_spike", special: "demon_legion", cooldown: 840, desc: "Disparo: estacas infernales y fuego. Especial: legion demoniaca y circulo vivo." },
+        { id: "skin_dragon_estelar", name: "Skin Dragon Estelar", rarity: "Cosmica", category: "Draconicas", price: 1280, color: "#1e3a8a", accent: "#facc15", shot: "dragon_star", special: "draco_meteor", cooldown: 860, desc: "Disparo: estrellas draconicas. Especial: lluvia de meteoros del dragon." }
     ];
 
     const BOSS_PACK = [
@@ -300,6 +306,12 @@
         if (s.shot === "beast_claw") { spend(8); for (let i = -1; i <= 1; i++) lineHit(x, y, a + i * 0.1, 230, 16, dmg * 0.8, s.accent); return true; }
         if (s.shot === "drill_shot") { spend(10); const b = new Bullet(x, y, a, 12, dmg * 1.4, s.accent, true, false, false); b.radius = 7; bm.bullets.push(b); return true; }
         if (s.shot === "pirate_cannon") { spend(16); bm.addGrenade(x, y, a, 8, dmg * 2, 28); return true; }
+        if (s.shot === "halo_burst") { spend(8); for (let i = -2; i <= 2; i++) bm.addBullet(x, y, a + i * 0.12, 15, dmg * 0.82, s.accent, false, false, false); if (Math.random() < 0.22) player.heal(1); return true; }
+        if (s.shot === "abyss_ink") { spend(11); bm.addGravityOrb(x, y, a, dmg * 0.92); addZone("toxic", x + Math.cos(a) * 170, y + Math.sin(a) * 170, s.accent, 68, 95, 4, 2); return true; }
+        if (s.shot === "police_barrage") { spend(5); for (let i = -1; i <= 1; i++) bm.addBullet(x, y, a + i * 0.055, 18, dmg * 0.72, s.accent, false, false, false); return true; }
+        if (s.shot === "eye_prism") { spend(9); for (let i = -2; i <= 2; i++) bm.addBullet(x, y, a + i * 0.14, 13, dmg * 0.76, s.color, true, false, false); if (Math.random() < 0.18) lineHit(x, y, a, 420, 7, dmg * 0.45, s.accent); return true; }
+        if (s.shot === "hell_spike") { spend(8); bm.addFlameCone(x, y, a, dmg * 0.78); lineHit(x, y, a, 220, 12, dmg * 0.5, s.accent); return true; }
+        if (s.shot === "dragon_star") { spend(10); for (let i = -1; i <= 1; i++) { bm.addHoming(x, y, a + i * 0.1, 8, dmg * 0.9); } return true; }
         return false;
     }
 
@@ -332,6 +344,48 @@
         else if (s.special === "beast_rage") { player.powerups.damage = Math.max(player.powerups.damage || 0, 420); player.powerups.speed = Math.max(player.powerups.speed || 0, 420); area(x, y, 260, 65, s.accent, 8); player.heal(18); }
         else if (s.special === "mine_field") for (let i = 0; i < 9; i++) addTrap("mine", x + rand(-260, 260), y + rand(-210, 210), s.accent);
         else if (s.special === "cosmic_broadside") for (let i = -4; i <= 4; i++) { game.bulletManager.addGrenade(x, y, a + i * 0.14, 9, 54, 24); game.bulletManager.addGrenade(x, y, a + Math.PI + i * 0.14, 9, 54, 24); }
+        else if (s.special === "guardian_seraph") {
+            player.heal(28);
+            for (let i = 0; i < 3; i++) addAlly("soul", x + rand(-40, 40), y + rand(-40, 40), s.accent, 720);
+            for (let i = 0; i < 10; i++) {
+                const t = randChoice(allTargets()) || { x: rand(80, CONFIG.canvasWidth - 80), y: rand(80, CONFIG.canvasHeight - 80) };
+                setTimeout(() => { lineHit(t.x, -40, Math.PI / 2, t.y + 60, 18, 72, s.accent); area(t.x, t.y, 110, 32, s.accent, 0); }, i * 55);
+            }
+        }
+        else if (s.special === "kraken_call") {
+            addZone("gravity", x, y, s.accent, 300, 240, 10, 10);
+            for (let i = 0; i < 7; i++) addTrap(i % 2 === 0 ? "cage" : "bear", x + rand(-240, 240), y + rand(-180, 180), s.color);
+            area(x, y, 250, 45, s.color, 10);
+        }
+        else if (s.special === "lockdown_raid") {
+            addTurret(x + 80, y, s.accent, 700);
+            addTurret(x - 80, y, s.accent, 700);
+            for (let i = 0; i < 4; i++) addDrone(player, s.accent, 540);
+            for (let i = 0; i < 6; i++) addTrap(i % 2 ? "cage" : "mine", x + rand(-260, 260), y + rand(-180, 180), s.accent);
+        }
+        else if (s.special === "orbital_judgement") {
+            for (let i = 0; i < 14; i++) {
+                const tx = rand(80, CONFIG.canvasWidth - 80), ty = rand(80, CONFIG.canvasHeight - 80);
+                setTimeout(() => { lineHit(tx, -40, Math.PI / 2, ty + 60, 15, 68, s.accent); }, i * 45);
+            }
+            for (let i = 0; i < 5; i++) addDrone(player, s.color, 460);
+        }
+        else if (s.special === "demon_legion") {
+            player.powerups.damage = Math.max(player.powerups.damage || 0, 520);
+            player.powerups.speed = Math.max(player.powerups.speed || 0, 280);
+            addZone("inferno", x, y, s.accent, 320, 300, 18, 4);
+            for (let i = 0; i < 3; i++) addAlly("robot", x + rand(-30, 30), y + rand(-30, 30), s.accent, 520);
+            area(x, y, 280, 70, s.accent, 12);
+        }
+        else if (s.special === "draco_meteor") {
+            for (let i = 0; i < 12; i++) {
+                setTimeout(() => {
+                    const tx = rand(100, CONFIG.canvasWidth - 100), ty = rand(90, CONFIG.canvasHeight - 90);
+                    game.bulletManager.addGrenade(tx, ty - 120, Math.PI / 2 + rand(-0.35, 0.35), rand(4, 7), 70, 30);
+                    area(tx, ty, 120, 22, s.accent, 5);
+                }, i * 55);
+            }
+        }
         game?.particles?.emit?.(x, y, 18, { colors: [s.color, s.accent, "#ffffff"], speed: 6, life: 18, size: 3, glow: true });
         game?.showNotification?.("Especial: " + s.name, "powerup");
         return true;
@@ -373,7 +427,13 @@
                 ctx.beginPath(); ctx.moveTo(24, 0); ctx.lineTo(-16, -18); ctx.lineTo(-7, 0); ctx.lineTo(-16, 18); ctx.closePath(); ctx.fill(); ctx.stroke();
                 if (s.id === "skin_electrificado") for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(0, 0, 26 + i * 8 + Math.sin((game?.frame || 0) * 0.2 + i) * 3, 0, Math.PI * 2); ctx.stroke(); }
                 if (s.id === "skin_angel_luz") { ctx.globalAlpha = 0.45; ctx.beginPath(); ctx.ellipse(-15, -24, 30, 10, -0.4, 0, Math.PI * 2); ctx.ellipse(-15, 24, 30, 10, 0.4, 0, Math.PI * 2); ctx.fill(); }
+                if (s.id === "skin_arcangel_serafin") { ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.arc(-10, 0, 28, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.ellipse(-16, -24, 30, 11, -0.5, 0, Math.PI * 2); ctx.ellipse(-16, 24, 30, 11, 0.5, 0, Math.PI * 2); ctx.fill(); }
                 if (s.id === "skin_demonio_fuego") { ctx.fillStyle = s.accent; ctx.beginPath(); ctx.moveTo(-8, -18); ctx.lineTo(-20, -30); ctx.lineTo(-16, -10); ctx.fill(); ctx.beginPath(); ctx.moveTo(-8, 18); ctx.lineTo(-20, 30); ctx.lineTo(-16, 10); ctx.fill(); }
+                if (s.id === "skin_rey_infernal") { ctx.fillStyle = s.accent; ctx.beginPath(); ctx.moveTo(-8, -18); ctx.lineTo(-26, -34); ctx.lineTo(-18, -8); ctx.fill(); ctx.beginPath(); ctx.moveTo(-8, 18); ctx.lineTo(-26, 34); ctx.lineTo(-18, 8); ctx.fill(); ctx.beginPath(); ctx.arc(-18, 0, 10, 0, Math.PI * 2); ctx.stroke(); }
+                if (s.id === "skin_kraken_abisal") for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(-8, 0); ctx.quadraticCurveTo(-24 - i * 4, -18 + i * 12, -30 - i * 4, -32 + i * 18); ctx.stroke(); }
+                if (s.id === "skin_oraculo_ocular") { ctx.beginPath(); ctx.ellipse(-6, 0, 18, 9, 0, 0, Math.PI * 2); ctx.stroke(); ctx.fillStyle = s.accent; ctx.beginPath(); ctx.arc(-4, 0, 5, 0, Math.PI * 2); ctx.fill(); }
+                if (s.id === "skin_comisario_omega") { ctx.fillStyle = s.accent; ctx.fillRect(-22, -5, 10, 10); ctx.fillRect(-22, -19, 8, 8); ctx.fillRect(-22, 11, 8, 8); }
+                if (s.id === "skin_dragon_estelar") { ctx.beginPath(); ctx.moveTo(-10, -18); ctx.lineTo(-30, -8); ctx.lineTo(-12, -2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-10, 18); ctx.lineTo(-30, 8); ctx.lineTo(-12, 2); ctx.stroke(); }
                 ctx.restore();
             }
             oldDraw.call(this, ctx);
@@ -430,6 +490,18 @@
         mini.score += 120;
         return mini;
     }
+    window.__megaBossSpecs = BOSS_PACK.slice();
+    window.__megaMiniSpecs = MINI_PACK.slice();
+    window.createMegaBossEntity = function (wave = 1, forcedId) {
+        const spec = forcedId ? BOSS_PACK.find(s => s.id === forcedId) : randChoice(BOSS_PACK);
+        if (!spec) return null;
+        return configureBoss(new Boss(spec.base, Math.max(wave, 4)), spec, wave);
+    };
+    window.createMegaMiniBossEntity = function (wave = 1, forcedId) {
+        const spec = forcedId ? MINI_PACK.find(s => s.id === forcedId) : randChoice(MINI_PACK);
+        if (!spec) return null;
+        return configureMini(new MiniBoss(spec.base, Math.max(wave, 3)), spec, wave);
+    };
     function patchBosses() {
         if (typeof WaveManager === "undefined" || WaveManager.prototype.__megaBossSpawnPatch) return;
         const oldSpawnBoss = WaveManager.prototype.spawnBoss;

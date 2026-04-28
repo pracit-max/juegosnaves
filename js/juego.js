@@ -3758,10 +3758,11 @@ class Enemy {
     }
 
     takeDamage(amount) {
+        if (this.dead || this.isDead || this.deathProcessed || this.dying) return;
         if (this.invulnTimer > 0) return;
 
         const actualDamage = amount * (1 - this.armor);
-        this.health -= actualDamage;
+        this.health = Math.max(0, this.health - actualDamage);
         this.flashTimer = 5;
 
         game.floatingTexts.add(this.x, this.y - this.radius, Math.floor(actualDamage).toString(), '#ffffff', 14, 30);
@@ -3774,13 +3775,18 @@ class Enemy {
             glow: true,
         });
 
-        if (this.health <= 0) {
+        if (this.health <= 0 && !this.deathProcessed) {
             this.die();
         }
     }
 
     die(silent = false) {
+        if (this.dead || this.isDead || this.deathProcessed || this.dying) return;
+        this.dying = true;
         this.dead = true;
+        this.isDead = true;
+        this.deathProcessed = true;
+        this.health = 0;
         if (!silent) {
             const sc = Math.floor(this.score * game.player.getComboMult() * DIFFICULTY_MULT[CONFIG.difficulty].scoreMult);
             game.score += sc;
@@ -3793,6 +3799,7 @@ class Enemy {
             game.dropManager.tryDrop(this.x, this.y, this.type);
             sound.play('explosion');
         }
+        this.dying = false;
     }
 
     draw(ctx) {
@@ -4638,8 +4645,9 @@ class MiniBoss {
     }
 
     takeDamage(amount) {
+        if (this.dead || this.isDead || this.deathProcessed || this.dying) return;
         if (this.invulnTimer > 0) return;
-        this.health -= amount;
+        this.health = Math.max(0, this.health - amount);
         this.flashTimer = 5;
 
         game.floatingTexts.add(this.x, this.y - this.radius - 10, Math.floor(amount).toString(), '#ff4444', 20, 35);
@@ -4647,13 +4655,18 @@ class MiniBoss {
             colors: [this.color, '#ffffff'], speed: 4, life: 12, size: 3, glow: true,
         });
 
-        if (this.health <= 0) {
+        if (this.health <= 0 && !this.deathProcessed) {
             this.die();
         }
     }
 
     die() {
+        if (this.dead || this.isDead || this.deathProcessed || this.dying) return;
+        this.dying = true;
         this.dead = true;
+        this.isDead = true;
+        this.deathProcessed = true;
+        this.health = 0;
         game.score += Math.floor(this.score * DIFFICULTY_MULT[CONFIG.difficulty].scoreMult);
         game.kills++;
         window.onEnemyKill?.('miniboss');
@@ -4668,7 +4681,8 @@ class MiniBoss {
         }
 
         game.hideBossBar();
-        game.showNotification(`¡${this.name} DERROTADO!`, 'boss');
+        game.showNotification(`${this.name} DERROTADO`, 'boss');
+        this.dying = false;
     }
 
     draw(ctx) {
@@ -5040,7 +5054,7 @@ class BulletManager {
         }
     }
 
-    addTeslaArc(x, y, angle, damage) {
+    addTeslaArc(x, y, angleValue, damage) {
         const hitTargets = [];
         const pool = [...game.enemyManager.enemies.filter(e => !e.dead && e.spawnTimer <= 0)];
         if (game.miniBoss && !game.miniBoss.dead) pool.push(game.miniBoss);
@@ -5069,7 +5083,7 @@ class BulletManager {
                 size: 2.5,
                 glow: true,
             });
-            this.lasers.push(new Laser(fromX, fromY, angle(fromX, fromY, closest.x, closest.y), damage * 0.15, 4));
+            this.lasers.push(new Laser(fromX, fromY, Math.atan2(closest.y - fromY, closest.x - fromX), damage * 0.15, 4));
             fromX = closest.x;
             fromY = closest.y;
         }
@@ -6208,8 +6222,9 @@ class Boss {
     }
 
     takeDamage(amount) {
+        if (this.dead || this.isDead || this.deathProcessed || this.dying) return;
         if (this.invulnTimer > 0) return;
-        this.health -= amount;
+        this.health = Math.max(0, this.health - amount);
         this.flashTimer = 5;
 
         game.floatingTexts.add(this.x, this.y - this.radius - 10, Math.floor(amount).toString(), '#ff4444', 20, 35);
@@ -6218,13 +6233,18 @@ class Boss {
             speed: 3, life: 10, size: 2, glow: true,
         });
 
-        if (this.health <= 0) {
+        if (this.health <= 0 && !this.deathProcessed) {
             this.die();
         }
     }
 
     die() {
+        if (this.dead || this.isDead || this.deathProcessed || this.dying) return;
+        this.dying = true;
         this.dead = true;
+        this.isDead = true;
+        this.deathProcessed = true;
+        this.health = 0;
         game.score += Math.floor(this.score * DIFFICULTY_MULT[CONFIG.difficulty].scoreMult);
         game.kills++;
         window.onEnemyKill?.('boss');
@@ -6235,7 +6255,8 @@ class Boss {
 
         if (this.type === 'bomber_supreme') {
             game.showNotification('MEGA EXPLOSION NUCLEAR', 'boss');
-            for (const enemy of game.enemyManager.enemies) enemy.takeDamage(9999);
+            const targets = [...game.enemyManager.enemies].filter(enemy => enemy && enemy !== this && !enemy.dead && !enemy.isDead && !enemy.deathProcessed);
+            for (const enemy of targets) enemy.takeDamage(9999);
             if (game.player && dist(this.x, this.y, game.player.x, game.player.y) < 320) game.player.takeDamage(this.damage * 1.5);
             game.spawnMeteorBurst(8, true);
         }
@@ -6246,7 +6267,8 @@ class Boss {
         }
 
         game.hideBossBar();
-        game.showNotification('¡JEFE DERROTADO!', 'boss');
+        game.showNotification('JEFE DERROTADO', 'boss');
+        this.dying = false;
     }
 
     draw(ctx) {

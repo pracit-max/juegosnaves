@@ -16,7 +16,13 @@
         { id: "arena", name: "Mundo Coliseo", diff: 1.38, color: "#b45309", accent: "#ffd166", desc: "Arena gladiadora, rondas rapidas y duelos cuerpo a cuerpo.", enemies: ["fast", "tank", "kamikaze", "canine", "mecha", "scout_ship"], bosses: ["tank_giant", "robot_colossal", "mech_beast"], mini: ["mini_tank", "mini_ninja", "mini_mecha"] },
         { id: "lava", name: "Mundo Lava", diff: 1.44, color: "#dc2626", accent: "#ffba08", desc: "Lava animada, fuego, rocas y enemigos explosivos.", enemies: ["bomber", "exploder", "dynamiter", "grenadier", "nuke_carrier", "kamikaze"], bosses: ["bomber_supreme", "mech_beast", "electric_boss"], mini: ["mini_bomber", "mini_nuclear", "mini_space_dragon"] },
         { id: "iceworld", name: "Mundo Hielo", diff: 1.24, color: "#60a5fa", accent: "#dbeafe", desc: "Nieve, congelacion y jefes de hielo.", enemies: ["freezer", "tank", "ghost", "sniper", "laser_turret", "heavy_drone"], bosses: ["black_hole", "living_planet", "supreme_dreadnought"], mini: ["ghost_lord", "mini_heavy_ship", "mini_nuclear"] },
-        { id: "darkworld", name: "Mundo Oscuro", diff: 1.52, color: "#111827", accent: "#a855f7", desc: "Sombras, bajo brillo y enemigos muy agresivos.", enemies: ["ghost", "invisible", "leech", "erratic", "cloner", "toxic", "police_sniper"], bosses: ["black_hole", "supreme_dreadnought", "living_planet"], mini: ["ghost_lord", "splitter_boss", "mini_summoner"] }
+        { id: "darkworld", name: "Mundo Oscuro", diff: 1.52, color: "#111827", accent: "#a855f7", desc: "Sombras, bajo brillo y enemigos muy agresivos.", enemies: ["ghost", "invisible", "leech", "erratic", "cloner", "toxic", "police_sniper"], bosses: ["black_hole", "supreme_dreadnought", "living_planet"], mini: ["ghost_lord", "splitter_boss", "mini_summoner"] },
+        { id: "heaven", name: "Reino Angelical", diff: 1.48, color: "#fff6d6", accent: "#ffd166", desc: "Solo entidades celestiales, ojos sagrados y castigos de luz.", enemies: ["small_angel", "floating_eye", "flyer", "ghost", "laser_turret"], bosses: ["electric_boss", "mothership", "supreme_dreadnought"], mini: ["mini_ship", "mini_summoner", "ghost_lord"], imageBossPool: ["uriel", "eye"], imageMiniPool: ["eye"] },
+        { id: "inferno", name: "Inframundo Demonio", diff: 1.56, color: "#5b0f0f", accent: "#ff6b35", desc: "Fuego oscuro, criaturas rabiosas y oleadas infernales.", enemies: ["kamikaze", "exploder", "toxic", "leech", "dynamiter", "grenadier", "big"], bosses: ["bomber_supreme", "mech_beast", "tank_giant"], mini: ["mini_bomber", "mini_nuclear", "armored_dog"] },
+        { id: "abyss", name: "Abismo del Pulpo", diff: 1.6, color: "#120322", accent: "#7df9ff", desc: "Tentaculos, vacio, tinta oscura y succion constante.", enemies: ["mini_octopus", "octo_tentacle", "ghost", "slime", "leech", "cloner"], bosses: ["black_hole", "living_planet", "mech_beast"], mini: ["ghost_lord", "splitter_boss", "mini_summoner"], imageBossPool: ["octopus"], imageMiniPool: ["eye"] },
+        { id: "policeworld", name: "Sector Policial", diff: 1.46, color: "#0a2a66", accent: "#38bdf8", desc: "Redadas, drones, carros y naves policiales por todas partes.", enemies: ["police", "police_sniper", "police_drone_img", "police_car_img", "scout_ship", "heavy_drone"], bosses: ["police_commander", "robot_colossal", "mothership"], mini: ["mini_ship", "mini_heavy_ship", "mini_mecha"], imageBossPool: ["policeShip"], imageMiniPool: ["eye"] },
+        { id: "eye_temple", name: "Santuario del Ojo", diff: 1.58, color: "#f8fafc", accent: "#7df9ff", desc: "El templo de los ojos flotantes, rayos y vigilancia celestial.", enemies: ["floating_eye", "small_angel", "ghost", "sniper", "laser_turret"], bosses: ["mothership", "electric_boss", "black_hole"], mini: ["mini_summoner", "ghost_lord", "mini_ship"], imageBossPool: ["eye", "uriel"], imageMiniPool: ["eye"] },
+        { id: "storm_palace", name: "Palacio de Tormentas", diff: 1.54, color: "#b8d8ff", accent: "#00d5ff", desc: "Tormentas sagradas, maquinas voladoras y castigos del cielo.", enemies: ["small_angel", "police_drone_img", "electro", "flyer", "laser_turret", "freezer"], bosses: ["electric_boss", "supreme_dreadnought", "mothership"], mini: ["mini_ship", "mini_heavy_ship", "mini_summoner"], imageBossPool: ["uriel", "policeShip", "eye"], imageMiniPool: ["eye"] }
     ];
 
     const EXTRA_SKINS = [
@@ -88,9 +94,590 @@
     let lastColiseumKind = "";
     let lastColiseumBoss = null;
     let lastColiseumMini = null;
+    const worldBackgrounds = {
+        galaxy: "galaxy",
+        mars: "desert",
+        moon: "crystal",
+        jupiter: "storm",
+        sun: "solar",
+        blackhole: "abyss",
+        jurassic: "earth",
+        nuclear: "neon",
+        meat: "infernal",
+        arena: "desert",
+        lava: "infernal",
+        iceworld: "crystal",
+        darkworld: "abyss",
+        heaven: "celestial",
+        inferno: "infernal",
+        abyss: "abyss",
+        policeworld: "neon",
+        eye_temple: "celestial",
+        storm_palace: "storm",
+        casino: "neon",
+        super_bosses: "storm"
+    };
+    const backgroundState = { current: "galaxy", previous: null, fade: 1, frame: 0, entities: [], events: [], themeSeed: 0, lastTheme: "galaxy", spawnClock: 0 };
+    const BG_LAYER_SPEED = { back: 0.16, mid: 0.4, front: 0.72 };
+    const BG_THEME_CONFIG = {
+        earth: { max: 18, rates: { back: 0.045, mid: 0.028, front: 0.03 } },
+        solar: { max: 20, rates: { back: 0.05, mid: 0.04, front: 0.034 } },
+        storm: { max: 18, rates: { back: 0.038, mid: 0.032, front: 0.02 } },
+        galaxy: { max: 22, rates: { back: 0.05, mid: 0.032, front: 0.016 } },
+        abyss: { max: 18, rates: { back: 0.03, mid: 0.028, front: 0.026 } },
+        infernal: { max: 18, rates: { back: 0.038, mid: 0.034, front: 0.032 } },
+        celestial: { max: 18, rates: { back: 0.042, mid: 0.03, front: 0.026 } },
+        desert: { max: 18, rates: { back: 0.032, mid: 0.03, front: 0.034 } },
+        neon: { max: 20, rates: { back: 0.026, mid: 0.032, front: 0.028 } },
+        crystal: { max: 18, rates: { back: 0.03, mid: 0.026, front: 0.028 } }
+    };
 
     const mapOf = id => MAPS.find(m => m.id === id) || MAPS[0];
     const skinList = () => window.skinSystem ? window.skinSystem.skins : [];
+
+    function setWorldBackground(world) {
+        const next = worldBackgrounds[world] || worldBackgrounds[mapOf(world)?.id] || "galaxy";
+        if (backgroundState.current === next) return;
+        backgroundState.previous = backgroundState.current;
+        backgroundState.current = next;
+        backgroundState.fade = 0;
+        backgroundState.lastTheme = next;
+        backgroundState.themeSeed = rand(0, Math.PI * 2);
+        backgroundState.entities.length = 0;
+        backgroundState.events.length = 0;
+        backgroundState.spawnClock = 0;
+        document.body.dataset.worldTheme = next;
+    }
+
+    function spawnBackgroundEntity(theme, layer) {
+        const sideTop = Math.random() < 0.78;
+        const e = {
+            theme,
+            layer,
+            age: 0,
+            x: rand(-40, CONFIG.canvasWidth + 40),
+            y: sideTop ? rand(-40, CONFIG.canvasHeight * 0.72) : rand(CONFIG.canvasHeight * 0.72, CONFIG.canvasHeight + 30),
+            vx: rand(-0.5, 0.5) * BG_LAYER_SPEED[layer],
+            vy: rand(-0.3, 0.3) * BG_LAYER_SPEED[layer],
+            alpha: layer === "back" ? 0.18 : layer === "mid" ? 0.28 : 0.4,
+            scale: layer === "back" ? 0.8 : layer === "mid" ? 1 : 1.18,
+            life: randInt(220, 520)
+        };
+        if (theme === "earth") {
+            Object.assign(e, Math.random() < 0.55
+                ? { type: "cloud", vx: rand(0.08, 0.22) * BG_LAYER_SPEED[layer], vy: rand(-0.02, 0.02), size: rand(34, 76) }
+                : Math.random() < 0.65
+                    ? { type: "bird", x: rand(-80, -20), y: rand(70, 240), vx: rand(0.8, 1.4) * BG_LAYER_SPEED[layer] * 2.2, flap: rand(0, Math.PI * 2), size: rand(8, 16), life: randInt(260, 420) }
+                    : { type: "leaf", x: rand(0, CONFIG.canvasWidth), y: -20, vx: rand(-0.4, 0.4), vy: rand(0.35, 0.8), spin: rand(0, Math.PI * 2), size: rand(5, 12), life: randInt(200, 360) });
+        } else if (theme === "solar") {
+            Object.assign(e, Math.random() < 0.5
+                ? { type: "ember", x: rand(0, CONFIG.canvasWidth), y: CONFIG.canvasHeight + 10, vx: rand(-0.12, 0.12), vy: -rand(0.35, 0.9), size: rand(3, 8), glow: "#ff9f1c" }
+                : { type: "flare", x: rand(0, CONFIG.canvasWidth), y: rand(80, CONFIG.canvasHeight - 80), vx: rand(-0.08, 0.08), pulse: rand(0, Math.PI * 2), size: rand(20, 42), life: randInt(60, 130) });
+        } else if (theme === "storm") {
+            Object.assign(e, Math.random() < 0.72
+                ? { type: "stormCloud", x: rand(-60, CONFIG.canvasWidth + 60), y: rand(40, CONFIG.canvasHeight * 0.55), vx: rand(0.12, 0.34), size: rand(34, 88) }
+                : { type: "spark", x: rand(80, CONFIG.canvasWidth - 80), y: rand(30, CONFIG.canvasHeight * 0.6), vx: rand(-0.08, 0.08), size: rand(12, 30), life: randInt(25, 70), flash: true });
+        } else if (theme === "galaxy") {
+            Object.assign(e, Math.random() < 0.75
+                ? { type: "twinkle", x: rand(0, CONFIG.canvasWidth), y: rand(0, CONFIG.canvasHeight), pulse: rand(0, Math.PI * 2), size: rand(1, 3.5), life: randInt(180, 420) }
+                : { type: "meteor", x: rand(-80, CONFIG.canvasWidth * 0.4), y: rand(-40, CONFIG.canvasHeight * 0.35), vx: rand(1.4, 2.8), vy: rand(0.7, 1.4), size: rand(3, 8), life: randInt(90, 170) });
+        } else if (theme === "abyss") {
+            Object.assign(e, Math.random() < 0.7
+                ? { type: "bubble", x: rand(0, CONFIG.canvasWidth), y: CONFIG.canvasHeight + rand(0, 40), vx: rand(-0.08, 0.08), vy: -rand(0.25, 0.75), size: rand(4, 12), life: randInt(220, 460) }
+                : Math.random() < 0.6
+                    ? { type: "shadow", x: -90, y: rand(100, CONFIG.canvasHeight * 0.75), vx: rand(0.18, 0.42), size: rand(28, 56), life: randInt(260, 460) }
+                    : { type: "tentacleSway", x: rand(60, CONFIG.canvasWidth - 60), y: CONFIG.canvasHeight - rand(10, 40), sway: rand(0, Math.PI * 2), size: rand(60, 120), life: randInt(200, 340) });
+        } else if (theme === "infernal") {
+            Object.assign(e, Math.random() < 0.7
+                ? { type: "spark", x: rand(0, CONFIG.canvasWidth), y: CONFIG.canvasHeight * 0.8 + rand(-20, 40), vx: rand(-0.18, 0.18), vy: -rand(0.45, 0.95), size: rand(2, 6), glow: "#ffba08" }
+                : { type: "heat", x: rand(0, CONFIG.canvasWidth), y: rand(60, CONFIG.canvasHeight - 120), pulse: rand(0, Math.PI * 2), size: rand(18, 46), life: randInt(80, 150) });
+        } else if (theme === "celestial") {
+            Object.assign(e, Math.random() < 0.68
+                ? { type: "light", x: rand(0, CONFIG.canvasWidth), y: rand(0, CONFIG.canvasHeight), pulse: rand(0, Math.PI * 2), size: rand(4, 12), life: randInt(160, 340) }
+                : Math.random() < 0.6
+                    ? { type: "feather", x: rand(0, CONFIG.canvasWidth), y: -20, vx: rand(-0.12, 0.12), vy: rand(0.3, 0.65), spin: rand(0, Math.PI * 2), size: rand(8, 18), life: randInt(220, 420) }
+                    : { type: "softRay", x: rand(0, CONFIG.canvasWidth), y: 0, pulse: rand(0, Math.PI * 2), size: rand(60, 120), life: randInt(120, 220) });
+        } else if (theme === "desert") {
+            Object.assign(e, Math.random() < 0.78
+                ? { type: "dust", x: rand(-40, CONFIG.canvasWidth + 40), y: rand(90, CONFIG.canvasHeight), vx: rand(0.35, 0.8), vy: rand(-0.05, 0.05), size: rand(8, 18) }
+                : { type: "gust", x: -120, y: rand(120, CONFIG.canvasHeight - 80), vx: rand(0.8, 1.6), size: rand(34, 96), life: randInt(80, 140) });
+        } else if (theme === "neon") {
+            Object.assign(e, Math.random() < 0.64
+                ? { type: "ship", x: rand(-100, -30), y: rand(70, CONFIG.canvasHeight * 0.65), vx: rand(1.1, 2.2) * BG_LAYER_SPEED[layer] * 1.6, size: rand(10, 22), life: randInt(120, 220), glow: Math.random() < 0.5 ? "#00f0ff" : "#ff00e4" }
+                : { type: "screenBlink", x: rand(40, CONFIG.canvasWidth - 40), y: rand(50, CONFIG.canvasHeight * 0.7), pulse: rand(0, Math.PI * 2), size: rand(10, 28), life: randInt(90, 180) });
+        } else if (theme === "crystal") {
+            Object.assign(e, Math.random() < 0.65
+                ? { type: "shard", x: rand(0, CONFIG.canvasWidth), y: rand(20, CONFIG.canvasHeight - 60), vx: rand(-0.08, 0.08), vy: rand(-0.04, 0.04), spin: rand(0, Math.PI * 2), size: rand(10, 26), life: randInt(220, 420) }
+                : { type: "glint", x: rand(0, CONFIG.canvasWidth), y: rand(0, CONFIG.canvasHeight), pulse: rand(0, Math.PI * 2), size: rand(5, 14), life: randInt(80, 160) });
+        }
+        return e;
+    }
+
+    function triggerBackgroundEvent(theme) {
+        const event = { theme, life: randInt(28, 75), pulse: rand(0, Math.PI * 2), x: rand(80, CONFIG.canvasWidth - 80), y: rand(60, CONFIG.canvasHeight - 80) };
+        if (theme === "solar" || theme === "infernal") event.type = "backExplosion";
+        else if (theme === "storm") event.type = "lightningFlash";
+        else if (theme === "galaxy") event.type = "meteorRain";
+        else if (theme === "celestial") event.type = "holyPulse";
+        else if (theme === "neon") event.type = "gridPulse";
+        else event.type = "ambientPulse";
+        backgroundState.events.push(event);
+        if (backgroundState.events.length > 4) backgroundState.events.shift();
+    }
+
+    function updateBackgroundEffects(theme, frame) {
+        const config = BG_THEME_CONFIG[theme] || BG_THEME_CONFIG.galaxy;
+        if (backgroundState.lastTheme !== theme) {
+            backgroundState.entities.length = 0;
+            backgroundState.events.length = 0;
+            backgroundState.lastTheme = theme;
+            backgroundState.themeSeed = rand(0, Math.PI * 2);
+            backgroundState.spawnClock = 0;
+        }
+        backgroundState.spawnClock++;
+        const layers = ["back", "mid", "front"];
+        for (const layer of layers) {
+            const activeOnLayer = backgroundState.entities.filter(e => e.layer === layer).length;
+            const rate = config.rates[layer] || 0.02;
+            if (activeOnLayer < Math.ceil(config.max / 3) && Math.random() < rate) {
+                backgroundState.entities.push(spawnBackgroundEntity(theme, layer));
+            }
+        }
+        if (backgroundState.entities.length > config.max) backgroundState.entities.splice(0, backgroundState.entities.length - config.max);
+        if (backgroundState.events.length < 2 && Math.random() < 0.0045) triggerBackgroundEvent(theme);
+
+        for (let i = backgroundState.entities.length - 1; i >= 0; i--) {
+            const e = backgroundState.entities[i];
+            e.age++;
+            e.life--;
+            e.x += e.vx || 0;
+            e.y += e.vy || 0;
+            if (e.flap != null) e.flap += 0.18;
+            if (e.spin != null) e.spin += 0.03;
+            if (e.pulse != null) e.pulse += 0.08;
+            if (e.sway != null) e.sway += 0.04;
+            const off = e.x < -180 || e.x > CONFIG.canvasWidth + 180 || e.y < -180 || e.y > CONFIG.canvasHeight + 180 || e.life <= 0;
+            if (off) backgroundState.entities.splice(i, 1);
+        }
+        for (let i = backgroundState.events.length - 1; i >= 0; i--) {
+            const e = backgroundState.events[i];
+            e.life--;
+            e.pulse += 0.12;
+            if (e.life <= 0) backgroundState.events.splice(i, 1);
+        }
+    }
+
+    function drawBackgroundEvents(ctx, theme, alpha = 1) {
+        for (const e of backgroundState.events) {
+            ctx.save();
+            ctx.globalAlpha = alpha * Math.min(0.36, e.life / 90);
+            if (e.type === "lightningFlash") {
+                ctx.fillStyle = "rgba(220,245,255,.45)";
+                ctx.fillRect(0, 0, CONFIG.canvasWidth, CONFIG.canvasHeight);
+                ctx.strokeStyle = "#dff8ff";
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(e.x, 0);
+                ctx.lineTo(e.x - 26, 90);
+                ctx.lineTo(e.x + 18, 110);
+                ctx.lineTo(e.x - 35, 230);
+                ctx.stroke();
+            } else if (e.type === "backExplosion") {
+                ctx.fillStyle = "rgba(255,180,40,.18)";
+                ctx.beginPath(); ctx.arc(e.x, e.y, 38 + Math.sin(e.pulse) * 10 + (75 - e.life), 0, Math.PI * 2); ctx.fill();
+            } else if (e.type === "meteorRain") {
+                ctx.strokeStyle = "rgba(180,235,255,.42)";
+                ctx.lineWidth = 3;
+                for (let i = 0; i < 4; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(e.x + i * 110, e.y - i * 35);
+                    ctx.lineTo(e.x + i * 110 + 40, e.y - i * 35 + 22);
+                    ctx.stroke();
+                }
+            } else if (e.type === "holyPulse") {
+                ctx.strokeStyle = "rgba(255,220,140,.38)";
+                ctx.lineWidth = 6;
+                ctx.beginPath(); ctx.arc(e.x, e.y, 40 + (70 - e.life) * 2.2, 0, Math.PI * 2); ctx.stroke();
+            } else if (e.type === "gridPulse") {
+                ctx.strokeStyle = "rgba(255,0,228,.28)";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, e.y, CONFIG.canvasWidth, 24 + Math.sin(e.pulse) * 10);
+            } else {
+                ctx.fillStyle = "rgba(255,255,255,.08)";
+                ctx.beginPath(); ctx.arc(e.x, e.y, 34 + Math.sin(e.pulse) * 12, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.restore();
+        }
+    }
+
+    function drawBackgroundEntity(ctx, e, alpha = 1) {
+        const a = alpha * e.alpha * Math.max(0.18, Math.min(1, e.life / 120));
+        ctx.save();
+        ctx.globalAlpha = a;
+        ctx.translate(e.x, e.y);
+        if (e.spin) ctx.rotate(e.spin);
+        const size = (e.size || 10) * (e.scale || 1);
+        switch (e.type) {
+            case "cloud":
+            case "stormCloud":
+                ctx.fillStyle = e.type === "stormCloud" ? "rgba(210,225,255,.18)" : "rgba(255,255,255,.22)";
+                ctx.beginPath(); ctx.ellipse(0, 0, size, size * 0.48, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(-size * 0.4, 4, size * 0.6, size * 0.36, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(size * 0.45, 2, size * 0.55, size * 0.34, 0, 0, Math.PI * 2); ctx.fill();
+                break;
+            case "bird":
+                ctx.strokeStyle = "#2c3d1a";
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(-size, 0); ctx.quadraticCurveTo(-size * 0.3, Math.sin(e.flap || 0) * size * 0.4, 0, 0); ctx.quadraticCurveTo(size * 0.3, -Math.sin(e.flap || 0) * size * 0.4, size, 0); ctx.stroke();
+                break;
+            case "leaf":
+                ctx.fillStyle = "#6dbb4a";
+                ctx.beginPath(); ctx.ellipse(0, 0, size * 0.52, size, Math.PI / 4, 0, Math.PI * 2); ctx.fill();
+                break;
+            case "ember":
+            case "spark":
+                ctx.fillStyle = e.glow || "#ffb347";
+                ctx.shadowColor = e.glow || "#ffb347";
+                ctx.shadowBlur = 12;
+                ctx.beginPath(); ctx.arc(0, 0, size, 0, Math.PI * 2); ctx.fill();
+                break;
+            case "flare":
+            case "heat":
+            case "light":
+            case "glint":
+            case "twinkle":
+                ctx.strokeStyle = e.glow || "#fff3b0";
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 3; i++) {
+                    ctx.beginPath(); ctx.arc(0, 0, size * (0.7 + i * 0.35 + Math.sin(e.pulse || 0) * 0.05), 0, Math.PI * 2); ctx.stroke();
+                }
+                break;
+            case "meteor":
+                ctx.strokeStyle = "#dff8ff";
+                ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(-size * 4, -size * 2); ctx.lineTo(0, 0); ctx.stroke();
+                ctx.fillStyle = "#9be7ff"; ctx.beginPath(); ctx.arc(0, 0, size, 0, Math.PI * 2); ctx.fill();
+                break;
+            case "bubble":
+                ctx.strokeStyle = "rgba(180,240,255,.45)";
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(0, 0, size, 0, Math.PI * 2); ctx.stroke();
+                break;
+            case "shadow":
+                ctx.fillStyle = "rgba(10,25,35,.28)";
+                ctx.beginPath(); ctx.ellipse(0, 0, size, size * 0.48, 0, 0, Math.PI * 2); ctx.fill();
+                break;
+            case "tentacleSway":
+                ctx.strokeStyle = "rgba(125,249,255,.18)";
+                ctx.lineWidth = Math.max(6, size * 0.08);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(Math.sin(e.sway || 0) * 18, -size * 0.3, Math.cos(e.sway || 0) * 24, -size * 0.65, Math.sin((e.sway || 0) * 1.8) * 28, -size);
+                ctx.stroke();
+                break;
+            case "feather":
+                ctx.fillStyle = "#fff7dd";
+                ctx.beginPath(); ctx.ellipse(0, 0, size * 0.4, size, 0.3, 0, Math.PI * 2); ctx.fill();
+                break;
+            case "softRay":
+                ctx.fillStyle = "rgba(255,230,170,.12)";
+                ctx.fillRect(-size * 0.15, 0, size * 0.3, CONFIG.canvasHeight * 0.8);
+                break;
+            case "dust":
+                ctx.fillStyle = "rgba(240,205,150,.22)";
+                ctx.beginPath(); ctx.ellipse(0, 0, size * 1.4, size * 0.7, 0, 0, Math.PI * 2); ctx.fill();
+                break;
+            case "gust":
+                ctx.strokeStyle = "rgba(255,225,170,.22)";
+                ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(-size, 0); ctx.quadraticCurveTo(0, -size * 0.25, size, 0); ctx.stroke();
+                break;
+            case "ship":
+                ctx.fillStyle = e.glow || "#00f0ff";
+                ctx.shadowColor = e.glow || "#00f0ff";
+                ctx.shadowBlur = 14;
+                ctx.beginPath(); ctx.moveTo(size, 0); ctx.lineTo(-size * 0.7, -size * 0.45); ctx.lineTo(-size * 0.3, 0); ctx.lineTo(-size * 0.7, size * 0.45); ctx.closePath(); ctx.fill();
+                break;
+            case "screenBlink":
+                ctx.fillStyle = Math.sin(e.pulse || 0) > 0 ? "rgba(0,240,255,.28)" : "rgba(255,0,228,.24)";
+                ctx.fillRect(-size, -size * 0.45, size * 2, size * 0.9);
+                break;
+            case "shard":
+                ctx.strokeStyle = "#dff8ff";
+                ctx.fillStyle = "rgba(220,245,255,.2)";
+                ctx.beginPath(); ctx.moveTo(0, -size); ctx.lineTo(size * 0.55, -size * 0.2); ctx.lineTo(size * 0.2, size); ctx.lineTo(-size * 0.5, size * 0.35); ctx.closePath(); ctx.fill(); ctx.stroke();
+                break;
+        }
+        ctx.restore();
+    }
+
+    function drawBackgroundLayer(ctx, theme, layer, alpha = 1) {
+        for (const e of backgroundState.entities) {
+            if (e.theme === theme && e.layer === layer) drawBackgroundEntity(ctx, e, alpha);
+        }
+    }
+
+    function drawBackdropSky(ctx, top, mid, bottom, alpha = 1) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        const g = ctx.createLinearGradient(0, 0, 0, CONFIG.canvasHeight);
+        g.addColorStop(0, top);
+        g.addColorStop(.55, mid);
+        g.addColorStop(1, bottom);
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, CONFIG.canvasWidth, CONFIG.canvasHeight);
+        ctx.restore();
+    }
+
+    function drawStars(ctx, frame, alpha, dense = 44, tint = "#ffffff") {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = tint;
+        for (let i = 0; i < dense; i++) {
+            const x = (i * 197.3 + frame * (0.12 + (i % 3) * 0.05)) % CONFIG.canvasWidth;
+            const y = (i * 91.7 + Math.sin(frame * 0.01 + i) * 26 + CONFIG.canvasHeight) % CONFIG.canvasHeight;
+            const r = 1 + (i % 3) * 0.8;
+            ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.restore();
+    }
+
+    function drawCloudBands(ctx, frame, colors, alpha = 1, amp = 20, h = 110) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        colors.forEach((color, idx) => {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(0, idx * h + 40);
+            for (let x = 0; x <= CONFIG.canvasWidth + 40; x += 36) {
+                const y = idx * h + 48 + Math.sin(frame * 0.01 + idx * 0.9 + x * 0.012) * amp;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(CONFIG.canvasWidth, idx * h + h + 80);
+            ctx.lineTo(0, idx * h + h + 80);
+            ctx.closePath();
+            ctx.fill();
+        });
+        ctx.restore();
+    }
+
+    function drawFloatingShards(ctx, frame, color, alpha = 1) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color + "33";
+        for (let i = 0; i < 14; i++) {
+            const x = (i * 133 + frame * (0.22 + i * 0.008)) % (CONFIG.canvasWidth + 100) - 50;
+            const y = (i * 87 + Math.sin(frame * 0.02 + i) * 40 + 120) % CONFIG.canvasHeight;
+            const s = 18 + (i % 4) * 7;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(frame * 0.005 + i);
+            ctx.beginPath();
+            ctx.moveTo(0, -s);
+            ctx.lineTo(s * 0.7, -4);
+            ctx.lineTo(s * 0.35, s);
+            ctx.lineTo(-s * 0.5, s * 0.45);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+        }
+        ctx.restore();
+    }
+
+    function drawCity(ctx, frame, palette, alpha = 1) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = palette.base;
+        ctx.fillRect(0, CONFIG.canvasHeight * 0.72, CONFIG.canvasWidth, CONFIG.canvasHeight * 0.28);
+        for (let i = 0; i < 16; i++) {
+            const w = 44 + (i % 4) * 18;
+            const h = 90 + (i % 5) * 36;
+            const x = i * 76 - (frame * (0.08 + (i % 3) * 0.03) % 76);
+            const y = CONFIG.canvasHeight * 0.72 - h;
+            ctx.fillStyle = palette.building;
+            ctx.fillRect(x, y, w, h);
+            ctx.fillStyle = palette.light;
+            for (let wy = y + 12; wy < y + h - 10; wy += 18) {
+                for (let wx = x + 8; wx < x + w - 8; wx += 12) {
+                    if (((wx + wy + i) % 3) !== 0) ctx.fillRect(wx, wy, 5, 7);
+                }
+            }
+        }
+        ctx.restore();
+    }
+
+    function drawRuins(ctx, frame, alpha = 1) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = "#4a2e17";
+        ctx.fillRect(0, CONFIG.canvasHeight * 0.8, CONFIG.canvasWidth, CONFIG.canvasHeight * 0.2);
+        for (let i = 0; i < 7; i++) {
+            const x = 80 + i * 150 - (frame * 0.05 % 150);
+            const h = 70 + (i % 3) * 24;
+            ctx.fillStyle = i % 2 ? "#7a5d32" : "#8f6e3d";
+            ctx.fillRect(x, CONFIG.canvasHeight * 0.8 - h, 26, h);
+            ctx.fillRect(x - 18, CONFIG.canvasHeight * 0.8 - h + 14, 62, 12);
+        }
+        ctx.restore();
+    }
+
+    function drawTemple(ctx, frame, alpha = 1) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = "rgba(255,255,255,.16)";
+        ctx.fillRect(0, CONFIG.canvasHeight * 0.78, CONFIG.canvasWidth, CONFIG.canvasHeight * 0.22);
+        for (let i = 0; i < 8; i++) {
+            const x = 70 + i * 125;
+            const h = 88 + (i % 2) * 26;
+            ctx.fillStyle = "rgba(255,245,210,.38)";
+            ctx.fillRect(x, CONFIG.canvasHeight * 0.78 - h, 20, h);
+            ctx.fillRect(x - 12, CONFIG.canvasHeight * 0.78 - h - 8, 46, 10);
+        }
+        ctx.restore();
+    }
+
+    function drawTentacles(ctx, frame, alpha = 1) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = "rgba(125,249,255,.18)";
+        ctx.lineWidth = 12;
+        for (let i = 0; i < 6; i++) {
+            const x = 70 + i * 170;
+            ctx.beginPath();
+            ctx.moveTo(x, CONFIG.canvasHeight);
+            ctx.bezierCurveTo(x - 40, CONFIG.canvasHeight - 120, x + 60, CONFIG.canvasHeight - 260, x + Math.sin(frame * 0.015 + i) * 40, CONFIG.canvasHeight - 420);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function renderThemeBackground(ctx, theme, alpha = 1, frame = 0, baseDraw) {
+        if (theme === "galaxy") {
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            if (baseDraw) baseDraw();
+            ctx.restore();
+            drawBackgroundLayer(ctx, theme, "back", alpha);
+            drawBackgroundLayer(ctx, theme, "mid", alpha);
+            drawBackgroundEvents(ctx, theme, alpha);
+            drawBackgroundLayer(ctx, theme, "front", alpha);
+            return;
+        }
+        if (theme === "earth") {
+            drawBackdropSky(ctx, "#6fd4ff", "#7cd6c4", "#204f2b", alpha);
+            drawBackgroundLayer(ctx, theme, "back", alpha);
+            drawCloudBands(ctx, frame, ["rgba(255,255,255,.22)", "rgba(225,255,255,.14)"], alpha, 14, 120);
+            drawBackgroundLayer(ctx, theme, "mid", alpha);
+            ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = "#365f2d"; ctx.fillRect(0, CONFIG.canvasHeight * 0.8, CONFIG.canvasWidth, CONFIG.canvasHeight * 0.2); ctx.restore();
+            drawRuins(ctx, frame, alpha * .45);
+            drawBackgroundLayer(ctx, theme, "front", alpha);
+            drawBackgroundEvents(ctx, theme, alpha);
+            return;
+        }
+        if (theme === "solar") {
+            drawBackdropSky(ctx, "#ffe08a", "#ff8c1a", "#3b0900", alpha);
+            drawBackgroundLayer(ctx, theme, "back", alpha);
+            drawCloudBands(ctx, frame, ["rgba(255,180,60,.24)", "rgba(255,70,20,.18)", "rgba(130,15,0,.22)"], alpha, 24, 100);
+            drawBackgroundLayer(ctx, theme, "mid", alpha);
+            ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = "#2e0800"; ctx.fillRect(0, CONFIG.canvasHeight * 0.82, CONFIG.canvasWidth, CONFIG.canvasHeight * 0.18); ctx.fillStyle = "#ff5e00"; for (let i = 0; i < 9; i++) ctx.fillRect(i * 140 - (frame * 0.2 % 140), CONFIG.canvasHeight * 0.82 - ((i % 3) * 10), 80, 18); ctx.restore();
+            drawBackgroundEvents(ctx, theme, alpha);
+            drawBackgroundLayer(ctx, theme, "front", alpha);
+            return;
+        }
+        if (theme === "storm") {
+            drawBackdropSky(ctx, "#a9c8ff", "#506ca5", "#101a35", alpha);
+            drawBackgroundLayer(ctx, theme, "back", alpha);
+            drawCloudBands(ctx, frame, ["rgba(225,235,255,.20)", "rgba(120,145,205,.22)", "rgba(35,52,92,.24)"], alpha, 22, 108);
+            drawStars(ctx, frame, alpha * 0.2, 18, "#7df9ff");
+            drawBackgroundLayer(ctx, theme, "mid", alpha);
+            if (Math.sin(frame * 0.08) > 0.9) {
+                ctx.save(); ctx.globalAlpha = alpha * 0.35; ctx.strokeStyle = "#dff8ff"; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.moveTo(CONFIG.canvasWidth * 0.72, 0); ctx.lineTo(CONFIG.canvasWidth * 0.66, 130); ctx.lineTo(CONFIG.canvasWidth * 0.74, 140); ctx.lineTo(CONFIG.canvasWidth * 0.62, 280); ctx.stroke(); ctx.restore();
+            }
+            drawBackgroundEvents(ctx, theme, alpha);
+            drawBackgroundLayer(ctx, theme, "front", alpha);
+            return;
+        }
+        if (theme === "abyss") {
+            drawBackdropSky(ctx, "#09031a", "#120d2d", "#03131f", alpha);
+            drawBackgroundLayer(ctx, theme, "back", alpha);
+            drawTentacles(ctx, frame, alpha);
+            drawStars(ctx, frame, alpha * 0.15, 24, "#7df9ff");
+            ctx.save(); ctx.globalAlpha = alpha * 0.3; ctx.fillStyle = "#7df9ff"; for (let i = 0; i < 20; i++) { const x = (i * 97 + frame * 0.35) % CONFIG.canvasWidth; const y = CONFIG.canvasHeight - ((i * 70 + frame * 0.4) % (CONFIG.canvasHeight + 60)); ctx.beginPath(); ctx.arc(x, y, 2 + (i % 3), 0, Math.PI * 2); ctx.fill(); } ctx.restore();
+            drawBackgroundLayer(ctx, theme, "mid", alpha);
+            drawBackgroundEvents(ctx, theme, alpha);
+            drawBackgroundLayer(ctx, theme, "front", alpha);
+            return;
+        }
+        if (theme === "infernal") {
+            drawBackdropSky(ctx, "#2c0405", "#5f0b08", "#140102", alpha);
+            drawBackgroundLayer(ctx, theme, "back", alpha);
+            ctx.save(); ctx.globalAlpha = alpha;
+            ctx.fillStyle = "#1b0506"; ctx.fillRect(0, CONFIG.canvasHeight * 0.8, CONFIG.canvasWidth, CONFIG.canvasHeight * 0.2);
+            ctx.fillStyle = "#ff5a1f";
+            for (let i = 0; i < 11; i++) ctx.fillRect(i * 124 - (frame * 0.18 % 124), CONFIG.canvasHeight * 0.84 + Math.sin(frame * 0.03 + i) * 6, 72, 16);
+            ctx.strokeStyle = "rgba(255,180,40,.32)"; ctx.lineWidth = 3;
+            for (let i = 0; i < 8; i++) { ctx.beginPath(); const x = i * 150 + 40; ctx.moveTo(x, CONFIG.canvasHeight * 0.8); ctx.lineTo(x + 30, CONFIG.canvasHeight); ctx.stroke(); }
+            ctx.restore();
+            drawBackgroundLayer(ctx, theme, "mid", alpha);
+            drawBackgroundEvents(ctx, theme, alpha);
+            drawBackgroundLayer(ctx, theme, "front", alpha);
+            return;
+        }
+        if (theme === "celestial") {
+            drawBackdropSky(ctx, "#fff7d8", "#e4d8ff", "#9abbe6", alpha);
+            drawBackgroundLayer(ctx, theme, "back", alpha);
+            drawCloudBands(ctx, frame, ["rgba(255,255,255,.30)", "rgba(255,245,210,.22)"], alpha, 15, 118);
+            drawTemple(ctx, frame, alpha);
+            ctx.save(); ctx.globalAlpha = alpha * 0.35; ctx.fillStyle = "#ffd166"; ctx.beginPath(); ctx.arc(CONFIG.canvasWidth * 0.75, 90, 48 + Math.sin(frame * 0.02) * 4, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+            drawBackgroundLayer(ctx, theme, "mid", alpha);
+            drawBackgroundEvents(ctx, theme, alpha);
+            drawBackgroundLayer(ctx, theme, "front", alpha);
+            return;
+        }
+        if (theme === "desert") {
+            drawBackdropSky(ctx, "#f7ca8c", "#d58c4a", "#6e3f1d", alpha);
+            drawBackgroundLayer(ctx, theme, "back", alpha);
+            ctx.save(); ctx.globalAlpha = alpha;
+            ctx.fillStyle = "#c98a42";
+            for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(i * 320 - (frame * 0.08 % 320), CONFIG.canvasHeight * 0.82); ctx.quadraticCurveTo(i * 320 + 140, CONFIG.canvasHeight * 0.66, i * 320 + 300, CONFIG.canvasHeight * 0.82); ctx.fill(); }
+            ctx.restore();
+            drawRuins(ctx, frame, alpha * .75);
+            drawBackgroundLayer(ctx, theme, "mid", alpha);
+            drawBackgroundEvents(ctx, theme, alpha);
+            drawBackgroundLayer(ctx, theme, "front", alpha);
+            return;
+        }
+        if (theme === "neon") {
+            drawBackdropSky(ctx, "#12021f", "#140a35", "#08040f", alpha);
+            drawBackgroundLayer(ctx, theme, "back", alpha);
+            drawCity(ctx, frame, { base: "#090311", building: "#130f28", light: "#00f0ff" }, alpha * .95);
+            ctx.save(); ctx.globalAlpha = alpha * 0.22; ctx.strokeStyle = "#ff00e4"; ctx.lineWidth = 2;
+            for (let y = 120; y < CONFIG.canvasHeight; y += 70) { ctx.beginPath(); ctx.moveTo(0, y + Math.sin(frame * 0.01 + y) * 8); ctx.lineTo(CONFIG.canvasWidth, y + Math.sin(frame * 0.01 + y) * 8); ctx.stroke(); }
+            ctx.restore();
+            drawBackgroundLayer(ctx, theme, "mid", alpha);
+            drawBackgroundEvents(ctx, theme, alpha);
+            drawBackgroundLayer(ctx, theme, "front", alpha);
+            return;
+        }
+        if (theme === "crystal") {
+            drawBackdropSky(ctx, "#c9f5ff", "#7bb6ff", "#1b2850", alpha);
+            drawBackgroundLayer(ctx, theme, "back", alpha);
+            drawFloatingShards(ctx, frame, "#dff8ff", alpha * .8);
+            ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = "#203869"; ctx.fillRect(0, CONFIG.canvasHeight * 0.82, CONFIG.canvasWidth, CONFIG.canvasHeight * 0.18); ctx.restore();
+            drawBackgroundLayer(ctx, theme, "mid", alpha);
+            drawBackgroundEvents(ctx, theme, alpha);
+            drawBackgroundLayer(ctx, theme, "front", alpha);
+            return;
+        }
+        drawBackdropSky(ctx, "#0b1024", "#111b3d", "#050912", alpha);
+        drawBackgroundLayer(ctx, theme, "back", alpha);
+        drawBackgroundLayer(ctx, theme, "mid", alpha);
+        drawBackgroundEvents(ctx, theme, alpha);
+        drawBackgroundLayer(ctx, theme, "front", alpha);
+    }
 
     function extendSkins() {
         if (!window.skinSystem || window.skinSystem.__bigCatalog) return;
@@ -471,6 +1058,7 @@
             this.selectedMap ||= "galaxy";
             document.body.dataset.map = this.selectedMap;
             document.body.dataset.mode = this.gameMode;
+            setWorldBackground(this.selectedMap);
             oldStart.call(this);
             if (this.player && window.skinSystem?.equipped()?.id !== "standard") {
                 this.player.weaponType = "skin";
@@ -512,54 +1100,55 @@
 
         WaveManager.prototype.spawnBoss = function () {
             if (game?.gameMode === "coliseum") {
-                const data = lastColiseumBoss || randChoice(COLISEUM_BOSSES);
                 const bossWave = this.wave + 5 + Math.floor(this.wave / 3);
-                game.boss = new Boss(data.type, bossWave);
-                game.boss.name = data.name;
-                game.boss.maxHealth = Math.floor(game.boss.maxHealth * data.hp * (1 + this.wave * 0.035));
-                game.boss.health = game.boss.maxHealth;
-                game.boss.color = data.color;
+                const data = lastColiseumBoss || randChoice(COLISEUM_BOSSES);
+                game.boss = window.createRandomBossEntity?.(window.rollBossTier?.({ wave: bossWave, mode: "coliseum", level: game.coliseumLevel || 1, requested: "boss" }) || "boss", { wave: bossWave, mode: "coliseum", level: game.coliseumLevel || 1, requested: "boss" }) || new Boss(data.type, bossWave);
+                if (!game.boss._bossSpawnId) {
+                    game.boss.name = data.name;
+                    game.boss.maxHealth = Math.floor(game.boss.maxHealth * data.hp * (1 + this.wave * 0.035));
+                    game.boss.health = game.boss.maxHealth;
+                    game.boss.color = data.color;
+                }
                 game.showBossBar(game.boss);
-                game.showNotification("¡" + data.name + " ENTRA AL COLISEO!", "boss");
-                game.particles.emitShockwave(CONFIG.canvasWidth / 2, CONFIG.canvasHeight / 2, data.color);
+                game.showNotification("COLISEO: " + game.boss.name, "boss");
+                game.particles.emitShockwave(CONFIG.canvasWidth / 2, CONFIG.canvasHeight / 2, game.boss.color || data.color);
                 game.screenShake.shake(22);
                 sound.play("boss_alert");
                 return;
             }
-            const map = mapOf(game?.selectedMap || "galaxy");
-            const type = map.bosses[(this.wave + map.bosses.length) % map.bosses.length];
-            const names = { robot_colossal: "JEFE ROBOT GIGANTE", mech_beast: "T-REX ALFA COSMICO", tank_giant: "TRICERATOPS BLINDADO", bomber_supreme: "BOMBARDERO NUCLEAR", black_hole: "SEÑOR DEL AGUJERO NEGRO", living_planet: "DEVORADOR DE GALAXIAS", electric_boss: "GRAN TORMENTA ROJA", supreme_dreadnought: "COMETA DESTRUCTOR", mothership: "NAVE ELITE COLOSAL" };
-            game.boss = new Boss(type, Math.max(this.wave, game.gameMode === "coliseum" ? this.wave + 4 : this.wave));
-            game.boss.name = names[type] || type.toUpperCase();
+            const mode = (game?.selectedMap || "galaxy") === "galaxy" ? "galaxy" : (game?.selectedMap || "play");
+            const desiredTier = window.rollBossTier?.({ wave: this.wave, mode, requested: this.wave >= 42 ? (Math.random() < 0.12 ? "mega" : "super") : this.wave >= 22 ? (Math.random() < 0.26 ? "super" : "boss") : "boss" }) || "boss";
+            game.boss = window.createRandomBossEntity?.(desiredTier, { wave: Math.max(this.wave, game.gameMode === "coliseum" ? this.wave + 4 : this.wave), mode }) || new Boss("robot_colossal", Math.max(this.wave, game.gameMode === "coliseum" ? this.wave + 4 : this.wave));
             game.showBossBar(game.boss);
-            game.showNotification("¡JEFE: " + game.boss.name + "!", "boss");
+            game.showNotification((desiredTier === "mega" ? "MEGA JEFE: " : desiredTier === "super" ? "SUPER JEFE: " : "JEFE: ") + game.boss.name, "boss");
             sound.play("boss_alert");
             game.screenShake.shake(16);
         };
 
         WaveManager.prototype.spawnMiniBoss = function () {
             if (game?.gameMode === "coliseum") {
-                const data = lastColiseumMini || randChoice(COLISEUM_MINIS);
                 const miniWave = this.wave + 4 + Math.floor(this.wave / 4);
-                this.miniBoss = new MiniBoss(data.type, miniWave);
-                this.miniBoss.name = data.name;
-                this.miniBoss.maxHealth = Math.floor(this.miniBoss.maxHealth * data.hp * (1 + this.wave * 0.04));
-                this.miniBoss.health = this.miniBoss.maxHealth;
-                this.miniBoss.color = data.color;
+                const data = lastColiseumMini || randChoice(COLISEUM_MINIS);
+                this.miniBoss = window.createRandomBossEntity?.("mini", { wave: miniWave, mode: "coliseum", level: game.coliseumLevel || 1, requested: "mini" }) || new MiniBoss(data.type, miniWave);
+                if (!this.miniBoss._bossSpawnId) {
+                    this.miniBoss.name = data.name;
+                    this.miniBoss.maxHealth = Math.floor(this.miniBoss.maxHealth * data.hp * (1 + this.wave * 0.04));
+                    this.miniBoss.health = this.miniBoss.maxHealth;
+                    this.miniBoss.color = data.color;
+                }
                 game.miniBoss = this.miniBoss;
                 game.showBossBar(this.miniBoss);
-                game.showNotification("¡" + data.name + " RETA AL JUGADOR!", "boss");
-                game.particles.emitShockwave(CONFIG.canvasWidth / 2, CONFIG.canvasHeight / 2, data.color);
+                game.showNotification("MINI COLISEO: " + this.miniBoss.name, "boss");
+                game.particles.emitShockwave(CONFIG.canvasWidth / 2, CONFIG.canvasHeight / 2, this.miniBoss.color || data.color);
                 game.screenShake.shake(14);
                 sound.play("boss_alert");
                 return;
             }
-            const map = mapOf(game?.selectedMap || "galaxy");
-            const type = map.mini[(this.wave + map.mini.length) % map.mini.length];
-            this.miniBoss = new MiniBoss(type, Math.max(this.wave, game.gameMode === "coliseum" ? this.wave + 3 : this.wave));
+            const mode = (game?.selectedMap || "galaxy") === "galaxy" ? "galaxy" : (game?.selectedMap || "play");
+            this.miniBoss = window.createRandomBossEntity?.("mini", { wave: Math.max(this.wave, game.gameMode === "coliseum" ? this.wave + 3 : this.wave), mode }) || new MiniBoss("mini_ship", Math.max(this.wave, game.gameMode === "coliseum" ? this.wave + 3 : this.wave));
             game.miniBoss = this.miniBoss;
             game.showBossBar(this.miniBoss);
-            game.showNotification("¡MINI JEFE: " + this.miniBoss.name + "!", "boss");
+            game.showNotification("MINI JEFE: " + this.miniBoss.name, "boss");
             sound.play("boss_alert");
             game.screenShake.shake(10);
         };
@@ -582,16 +1171,27 @@
 
         const oldBg = BackgroundSystem.prototype.draw;
         BackgroundSystem.prototype.draw = function (ctx) {
-            oldBg.call(this, ctx);
             const map = mapOf(game?.selectedMap || "galaxy");
+            const theme = worldBackgrounds[map.id] || "galaxy";
+            backgroundState.frame = (game?.frame || backgroundState.frame || 0);
+            if (backgroundState.current !== theme && game?.state === "playing") setWorldBackground(map.id);
+            updateBackgroundEffects(backgroundState.current || theme, backgroundState.frame);
+            const baseGalaxy = () => oldBg.call(this, ctx);
+            ctx.clearRect(0, 0, CONFIG.canvasWidth, CONFIG.canvasHeight);
+            renderThemeBackground(ctx, backgroundState.current || theme, 1, backgroundState.frame, baseGalaxy);
+            if (backgroundState.previous && backgroundState.fade < 1) {
+                renderThemeBackground(ctx, backgroundState.previous, 1 - backgroundState.fade, backgroundState.frame, baseGalaxy);
+                backgroundState.fade = Math.min(1, backgroundState.fade + 0.08);
+                if (backgroundState.fade >= 1) backgroundState.previous = null;
+            }
             ctx.save();
             const g = ctx.createRadialGradient(CONFIG.canvasWidth / 2, CONFIG.canvasHeight / 2, 120, CONFIG.canvasWidth / 2, CONFIG.canvasHeight / 2, CONFIG.canvasWidth * .75);
-            g.addColorStop(0, map.color + "25");
-            g.addColorStop(1, map.accent + "08");
+            g.addColorStop(0, map.color + "18");
+            g.addColorStop(1, map.accent + "06");
             ctx.fillStyle = g;
             ctx.fillRect(0, 0, CONFIG.canvasWidth, CONFIG.canvasHeight);
             if (game?.gameMode === "coliseum") {
-                ctx.strokeStyle = map.accent; ctx.globalAlpha = .25; ctx.lineWidth = 6;
+                ctx.strokeStyle = map.accent; ctx.globalAlpha = .18; ctx.lineWidth = 6;
                 for (let r = 260; r < 900; r += 160) { ctx.beginPath(); ctx.arc(CONFIG.canvasWidth / 2, CONFIG.canvasHeight / 2, r, 0, Math.PI * 2); ctx.stroke(); }
             }
             ctx.restore();
@@ -635,6 +1235,12 @@
                 if (map.id === "arena" && this.frame % 260 === 0) this.showNotification("EL PUBLICO EXIGE COMBATE", "boss");
                 if (map.id === "lava" && this.frame % 260 === 0) pulse(rand(120, CONFIG.canvasWidth - 120), rand(120, CONFIG.canvasHeight - 120), 140, 30, "#dc2626", { type: "burn", frames: 120, damage: 3, color: "#ffba08" });
                 if (map.id === "iceworld" && this.frame % 320 === 0) pulse(rand(120, CONFIG.canvasWidth - 120), rand(120, CONFIG.canvasHeight - 120), 150, 18, "#60a5fa", { type: "freeze", frames: 150, damage: 1, color: "#dbeafe" });
+                if (map.id === "heaven" && this.frame % 280 === 0) pulse(rand(140, CONFIG.canvasWidth - 140), rand(120, CONFIG.canvasHeight - 120), 140, 20, "#ffd166", { type: "stun", frames: 70, damage: 1, color: "#fff3b0" });
+                if (map.id === "inferno" && this.frame % 230 === 0) pulse(rand(120, CONFIG.canvasWidth - 120), rand(120, CONFIG.canvasHeight - 120), 145, 28, "#ff6b35", { type: "burn", frames: 130, damage: 3, color: "#ffba08" });
+                if (map.id === "abyss" && this.frame % 300 === 0) pulse(rand(120, CONFIG.canvasWidth - 120), rand(120, CONFIG.canvasHeight - 120), 155, 24, "#7df9ff", { type: "poison", frames: 110, damage: 2, color: "#b388ff" });
+                if (map.id === "policeworld" && this.frame % 260 === 0) this.showNotification("REDADA INTERGALACTICA", "boss");
+                if (map.id === "eye_temple" && this.frame % 260 === 0) pulse(rand(120, CONFIG.canvasWidth - 120), rand(120, CONFIG.canvasHeight - 120), 130, 18, "#fff3b0", { type: "freeze", frames: 90, damage: 1, color: "#7df9ff" });
+                if (map.id === "storm_palace" && this.frame % 220 === 0) electricChain(rand(120, CONFIG.canvasWidth - 120), rand(120, CONFIG.canvasHeight - 120), rand(0, Math.PI * 2), 22, 500, 4);
                 if (map.id === "darkworld" && this.frame % 260 === 0 && this.player) {
                     for (const e of this.enemyManager.enemies) {
                         if (!e.dead) {
@@ -1198,6 +1804,66 @@
     }
 
     function makeSpecial(kind, wave, level) {
+        if ((kind === "superboss" || kind === "mega") && window.createRandomBossEntity) {
+            const rollKind = kind === "mega" ? "mega" : (wave >= 10 && Math.random() < 0.18 ? "mega" : "super");
+            const entity = window.createRandomBossEntity(rollKind, { wave: wave + level * 4, mode: "coliseum", level });
+            if (entity) {
+                entity.name = (rollKind === "mega" ? "COLISEO MEGA: " : "COLISEO SUPER: ") + entity.name;
+                entity.maxHealth = Math.floor(entity.maxHealth * (0.85 + level * 0.18));
+                entity.health = entity.maxHealth;
+                entity._coliseumSpecial = true;
+                entity._coliseumKind = rollKind === "mega" ? "mega" : "superboss";
+                entity._coliseumTier = level;
+                entity.spawnTimer = 90 + randInt(0, 35);
+                placeColiseumEntity(entity);
+                return entity;
+            }
+        }
+        if (kind === "superboss") {
+            let entity = null;
+            if (window.createSuperBoss && Math.random() < 0.55) {
+                entity = window.createSuperBoss({ healthMult: 3.2 + level * 0.55, scale: 1.6 + level * 0.28 });
+            } else if (window.createImageBossEntity) {
+                entity = window.createImageBossEntity("superboss", wave + level * 4);
+            }
+            if (entity) {
+                entity.name = "COLISEO SUPER: " + entity.name;
+                entity.maxHealth = Math.floor(entity.maxHealth * (0.85 + level * 0.18));
+                entity.health = entity.maxHealth;
+                entity._coliseumSpecial = true;
+                entity._coliseumKind = "superboss";
+                entity._coliseumTier = level;
+                entity.spawnTimer = 90 + randInt(0, 35);
+                placeColiseumEntity(entity);
+                return entity;
+            }
+        }
+        if (window.createRandomBossEntity) {
+            const entity = window.createRandomBossEntity(kind === "boss" ? "boss" : "mini", { wave: wave + level * 2, mode: "coliseum", level, requested: kind === "boss" ? "boss" : "mini" });
+            if (entity) {
+                entity.name = (kind === "boss" ? "COLISEO " : "MINI COLISEO ") + entity.name;
+                entity.maxHealth = Math.floor(entity.maxHealth * (1 + (level - 1) * 0.18));
+                entity.health = entity.maxHealth;
+                entity._coliseumSpecial = true;
+                entity._coliseumKind = kind;
+                entity._coliseumTier = level;
+                entity.spawnTimer = 70 + randInt(0, 35);
+                placeColiseumEntity(entity);
+                return entity;
+            }
+        }
+        if (window.createImageBossEntity && Math.random() < (kind === "boss" ? 0.42 : 0.34)) {
+            const entity = window.createImageBossEntity(kind === "boss" ? "boss" : "miniboss", wave + level * 2);
+            entity.name = (kind === "boss" ? "COLISEO " : "MINI COLISEO ") + entity.name;
+            entity.maxHealth = Math.floor(entity.maxHealth * (1 + (level - 1) * 0.18));
+            entity.health = entity.maxHealth;
+            entity._coliseumSpecial = true;
+            entity._coliseumKind = kind;
+            entity._coliseumTier = level;
+            entity.spawnTimer = 70 + randInt(0, 35);
+            placeColiseumEntity(entity);
+            return entity;
+        }
         const pool = kind === "boss" ? BOSS_POOL : MINI_POOL;
         const data = randChoice(pool);
         const entity = kind === "boss" ? new Boss(data.type, wave + level * 2) : new MiniBoss(data.type, wave + level);
@@ -1215,15 +1881,27 @@
             entity.radius = Math.max(entity.radius, 62);
             entity.speed *= 1.08;
         }
-        const side = randInt(0, 3);
-        const margin = 110;
-        entity.x = side === 0 ? rand(margin, CONFIG.canvasWidth - margin) : side === 1 ? CONFIG.canvasWidth + margin : side === 2 ? rand(margin, CONFIG.canvasWidth - margin) : -margin;
-        entity.y = side === 0 ? -margin : side === 1 ? rand(margin, CONFIG.canvasHeight - margin) : side === 2 ? CONFIG.canvasHeight + margin : rand(margin, CONFIG.canvasHeight - margin);
+        placeColiseumEntity(entity);
         entity.spawnTimer = 70 + randInt(0, 35);
         return entity;
     }
 
+    function placeColiseumEntity(entity) {
+        const side = randInt(0, 3);
+        const margin = 110;
+        entity.x = side === 0 ? rand(margin, CONFIG.canvasWidth - margin) : side === 1 ? CONFIG.canvasWidth + margin : side === 2 ? rand(margin, CONFIG.canvasWidth - margin) : -margin;
+        entity.y = side === 0 ? -margin : side === 1 ? rand(margin, CONFIG.canvasHeight - margin) : side === 2 ? CONFIG.canvasHeight + margin : rand(margin, CONFIG.canvasHeight - margin);
+    }
+
     function getRoundPlan(level, wave) {
+        if (window.getBossEncounterPlan) {
+            const raw = window.getBossEncounterPlan({ wave, mode: "coliseum", level });
+            return raw.map(kind => kind === "mini" ? "miniboss" : kind === "super" ? "superboss" : kind === "mega" ? "mega" : "boss");
+        }
+        const superRoll = Math.random();
+        if (level === 1 && wave >= 3 && superRoll < 0.14) return ["superboss"];
+        if (level === 2 && wave >= 2 && superRoll < 0.24) return Math.random() < 0.5 ? ["superboss"] : ["superboss", "miniboss"];
+        if (level === 3 && superRoll < 0.36) return wave % 3 === 0 ? ["superboss", "boss"] : ["superboss", "miniboss", "miniboss"];
         if (level === 1) return [wave % 2 === 0 || Math.random() < 0.45 ? "boss" : "miniboss"];
         if (level === 2) {
             const roll = Math.random();
@@ -1249,7 +1927,7 @@
             const entity = makeSpecial(kind, manager.wave, level);
             game.coliseumSpecials.push(entity);
         }
-        const firstBoss = game.coliseumSpecials.find(e => e._coliseumKind === "boss");
+        const firstBoss = game.coliseumSpecials.find(e => e._coliseumKind === "mega" || e._coliseumKind === "superboss" || e._coliseumKind === "boss");
         const firstMini = game.coliseumSpecials.find(e => e._coliseumKind === "miniboss");
         if (firstBoss) game.boss = firstBoss;
         if (firstMini) game.miniBoss = firstMini;
@@ -1917,6 +2595,24 @@
         sound.play("boss_alert");
     }
 
+    function createAdvancedBossEntity(wave, forcedId) {
+        const data = forcedId ? ADVANCED_BOSSES.find(b => b.id === forcedId) : randChoice(ADVANCED_BOSSES);
+        if (!data) return null;
+        const boss = new Boss(data.base, wave);
+        boss.advancedBoss = data.id;
+        boss.advancedReward = data.reward;
+        boss.name = data.name;
+        boss.color = data.color;
+        boss.glowColor = data.glow;
+        boss.radius = data.meta ? Math.max(boss.radius, 72) : Math.max(boss.radius, 50);
+        boss.maxHealth = Math.floor(boss.maxHealth * data.hp);
+        boss.health = boss.maxHealth;
+        boss.score = Math.floor((boss.score || 600) * (data.meta ? 2.3 : 1.45));
+        return boss;
+    }
+    window.__advancedBossSpecs = ADVANCED_BOSSES.slice();
+    window.createAdvancedBossEntity = createAdvancedBossEntity;
+
     function advancedBossPattern(boss, player) {
         if (!boss.advancedBoss || boss.spawnTimer > 0 || boss.dead || !player) return;
         const role = boss.advancedBoss;
@@ -2083,10 +2779,15 @@
 
             const oldDie = Boss.prototype.die;
             Boss.prototype.die = function () {
+                if (this.__advancedBossDieRunning) return;
+                const alreadyProcessed = this.deathProcessed || this.dead || this.isDead;
                 const reward = this.advancedReward;
                 const wasAdvanced = this.advancedBoss;
+                this.__advancedBossDieRunning = true;
                 oldDie.call(this);
-                if (wasAdvanced) {
+                this.__advancedBossDieRunning = false;
+                if (wasAdvanced && !alreadyProcessed && !this.__advancedBossRewardProcessed) {
+                    this.__advancedBossRewardProcessed = true;
                     if (reward) grant(reward);
                     playerData?.addC?.(wasAdvanced === "planet_devourer" ? 900 : 420);
                     playerData?.addBPXP?.(wasAdvanced === "planet_devourer" ? 900 : 360);
@@ -2137,3 +2838,5 @@
     else window.addEventListener("load", patchAdvancedContent);
     window.advancedCosmetics = cosmetics;
 })();
+
+

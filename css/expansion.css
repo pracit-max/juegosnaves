@@ -120,6 +120,14 @@ body[data-map="arena"] #gameCanvas {
     background: radial-gradient(circle at 50% 55%, #9a5b18, #3b1f0b 60%, #110804);
 }
 
+body[data-map="casino"] #gameCanvas {
+    background:
+        radial-gradient(circle at 50% 20%, rgba(255,209,102,.24), transparent 28%),
+        radial-gradient(circle at 28% 64%, rgba(255,51,77,.22), transparent 30%),
+        radial-gradient(circle at 72% 62%, rgba(122,229,130,.16), transparent 28%),
+        linear-gradient(180deg, #080012, #1f0b2e 48%, #09020c);
+}
+
 body[data-map="lava"] #gameCanvas {
     background: radial-gradient(circle at 50% 70%, #ff6b00, #5b1206 48%, #120404);
 }
@@ -154,6 +162,83 @@ body[data-mode="coliseum"] #waveText,
 body[data-mode="coliseum"] #bossName {
     color: #ff6b8b;
     text-shadow: 0 0 18px rgba(255, 80, 120, .55);
+}
+
+.casino-tier-card {
+    border-color: rgba(255, 209, 102, .78);
+    background:
+        radial-gradient(circle at 18% 10%, rgba(255,209,102,.3), transparent 26%),
+        radial-gradient(circle at 82% 18%, rgba(122,229,130,.24), transparent 28%),
+        radial-gradient(circle at 50% 78%, rgba(179,136,255,.26), transparent 34%),
+        linear-gradient(180deg, rgba(78, 8, 28, .96), rgba(13, 5, 32, .98));
+    box-shadow: 0 0 28px rgba(255, 209, 102, .24), inset 0 0 35px rgba(255, 51, 77, .12);
+}
+
+.casino-tier-card::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px dashed rgba(255, 209, 102, .38);
+    border-radius: 12px;
+    pointer-events: none;
+}
+
+.casino-tier-card::after {
+    content: '777';
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    color: #7ae582;
+    font-size: .9rem;
+    font-weight: 900;
+    text-shadow: 0 0 12px rgba(122, 229, 130, .8);
+}
+
+.casino-tier-card .tier-skulls {
+    color: #ffd166;
+    text-shadow: 0 0 18px rgba(255, 209, 102, .7), 0 0 28px rgba(255, 51, 77, .45);
+}
+
+.casino-tier-card h3 {
+    color: #fff7c7;
+}
+
+.casino-tier-card p {
+    color: #ffd6e0;
+}
+
+.casino-tier-card small {
+    color: #d8b4fe;
+}
+
+.casino-tier-card em {
+    color: #7ae582;
+}
+
+.casino-tier-card .menuBtn {
+    border-color: rgba(255,209,102,.72);
+    background: linear-gradient(90deg, rgba(255,51,77,.9), rgba(88,28,135,.88), rgba(20,184,166,.82));
+    box-shadow: 0 0 24px rgba(255,209,102,.34);
+}
+
+body[data-coliseum-tier="casino"] #hudTop,
+body[data-coliseum-tier="casino"] #hudBottom {
+    background:
+        radial-gradient(circle at 12% 0%, rgba(255,209,102,.24), transparent 28%),
+        linear-gradient(180deg, rgba(38, 8, 36, .88), rgba(4, 8, 22, .82));
+    border-color: rgba(255, 209, 102, .36);
+}
+
+body[data-coliseum-tier="casino"] #waveText,
+body[data-coliseum-tier="casino"] #bossName {
+    color: #ffd166;
+    text-shadow: 0 0 18px rgba(255, 209, 102, .72), 0 0 30px rgba(255, 51, 77, .38);
+}
+
+.casinoHudIcon {
+    border-radius: 10px;
+    background: rgba(12, 4, 24, .78);
+    box-shadow: 0 0 18px currentColor;
 }
 
 @media (max-width: 760px) {
@@ -549,5 +634,149 @@ body[data-mode="coliseum"][data-coliseum-tier="3"] #hudTop::after {
         max-height: 62vh;
         overflow-y: auto;
         padding-right: 4px;
+    }
+}
+
+/* Casino Coliseum final overrides */
+#coliseumSelectScreen .coliseum-tier-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+#coliseumSelectScreen .casino-tier-card {
+    color: #ffd166;
+    border-color: rgba(255, 209, 102, .78);
+    background:
+        radial-gradient(circle at 18% 10%, rgba(255,209,102,.3), transparent 26%),
+        radial-gradient(circle at 82% 18%, rgba(122,229,130,.24), transparent 28%),
+        radial-gradient(circle at 50% 78%, rgba(179,136,255,.26), transparent 34%),
+        linear-gradient(180deg, rgba(78, 8, 28, .96), rgba(13, 5, 32, .98));
+    box-shadow: 0 0 28px rgba(255, 209, 102, .24), inset 0 0 35px rgba(255, 51, 77, .12);
+}
+
+#coliseumSelectScreen .casino-tier-card::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    height: auto;
+    border: 1px dashed rgba(255, 209, 102, .38);
+    border-radius: 12px;
+    opacity: 1;
+    pointer-events: none;
+}
+
+#coliseumSelectScreen .casino-tier-card::after {
+    content: '777';
+    position: absolute;
+    inset: 14px 16px auto auto;
+    height: auto;
+    border: 0;
+    color: #7ae582;
+    font-size: .9rem;
+    font-weight: 900;
+    opacity: 1;
+    text-shadow: 0 0 12px rgba(122, 229, 130, .8);
+}
+
+#coliseumSelectScreen .casino-tier-card .tier-skulls {
+    color: #ffd166;
+    text-shadow: 0 0 18px rgba(255, 209, 102, .7), 0 0 28px rgba(255, 51, 77, .45);
+}
+
+#coliseumSelectScreen .casino-tier-card p {
+    color: #ffd6e0;
+}
+
+#coliseumSelectScreen .casino-tier-card small {
+    color: #d8b4fe;
+}
+
+#coliseumSelectScreen .casino-tier-card em {
+    color: #7ae582;
+}
+
+#coliseumSelectScreen .casino-tier-card .menuBtn {
+    border-color: rgba(255,209,102,.72);
+    background: linear-gradient(90deg, rgba(255,51,77,.9), rgba(88,28,135,.88), rgba(20,184,166,.82));
+    box-shadow: 0 0 24px rgba(255,209,102,.34);
+}
+
+body[data-mode="coliseum"][data-coliseum-tier="casino"] #hudTop::after {
+    content: "COLISEO CASINO | 5 CALAVERAS";
+    color: #ffd166;
+}
+
+#coliseumSelectScreen .super-boss-tier-card {
+    color: #ffdd57;
+    border-color: rgba(255, 68, 68, .82);
+    background:
+        radial-gradient(circle at 18% 12%, rgba(255,221,87,.34), transparent 25%),
+        radial-gradient(circle at 78% 18%, rgba(255,51,77,.28), transparent 30%),
+        radial-gradient(circle at 50% 82%, rgba(125,249,255,.2), transparent 34%),
+        linear-gradient(180deg, rgba(74, 12, 12, .97), rgba(5, 6, 24, .98));
+    box-shadow: 0 0 30px rgba(255,68,68,.3), inset 0 0 42px rgba(255,221,87,.12);
+}
+
+#coliseumSelectScreen .super-boss-tier-card::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    height: auto;
+    border: 1px solid rgba(255,221,87,.36);
+    border-radius: 12px;
+    opacity: 1;
+    pointer-events: none;
+}
+
+#coliseumSelectScreen .super-boss-tier-card::after {
+    content: 'BOSS';
+    position: absolute;
+    inset: 14px 16px auto auto;
+    height: auto;
+    border: 0;
+    color: #ff4444;
+    font-size: .86rem;
+    font-weight: 900;
+    opacity: 1;
+    text-shadow: 0 0 12px rgba(255,68,68,.85);
+}
+
+#coliseumSelectScreen .super-boss-tier-card .dragon-tier {
+    color: #ffdd57;
+    text-shadow: 0 0 18px rgba(255,221,87,.75), 0 0 30px rgba(255,68,68,.55);
+    font-size: 1.28rem;
+}
+
+#coliseumSelectScreen .super-boss-tier-card p {
+    color: #ffd6d6;
+}
+
+#coliseumSelectScreen .super-boss-tier-card small {
+    color: #bae6fd;
+}
+
+#coliseumSelectScreen .super-boss-tier-card em {
+    color: #ffdd57;
+}
+
+#coliseumSelectScreen .super-boss-tier-card .menuBtn {
+    border-color: rgba(255,221,87,.72);
+    background: linear-gradient(90deg, rgba(255,68,68,.96), rgba(127,29,29,.94), rgba(255,221,87,.74));
+    box-shadow: 0 0 24px rgba(255,68,68,.38);
+}
+
+body[data-mode="coliseum"][data-coliseum-tier="superboss"] #hudTop::after {
+    content: "MODO SUPER JEFES | DRAGON COLOSAL";
+    color: #ffdd57;
+}
+
+@media (max-width: 1180px) {
+    #coliseumSelectScreen .coliseum-tier-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    #coliseumSelectScreen .coliseum-tier-grid {
+        grid-template-columns: 1fr;
     }
 }
